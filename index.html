@@ -61,8 +61,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:0 12px;z-index:1000;
   user-select:none;
   flex:0 0 auto;
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
 }
+#toolbar::-webkit-scrollbar { display: none; }
+#toolbar { -ms-overflow-style: none; scrollbar-width: none; }
 @media (max-width: 1400px) {
   .tb-btn .tb-text { display: none; }
   .tb-title { display: none; }
@@ -104,7 +107,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #search-box::placeholder{color:var(--text3)}
 
 /* CANVAS */
-#canvas-wrap{position:relative;flex:1 1 0;width:100%;overflow:hidden;cursor:default}
+#canvas-wrap{position:relative;flex:1 1 0;width:100%;overflow:hidden;cursor:default;touch-action:none}
 #canvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
 #grid-bg{position:absolute;top:0;left:0;pointer-events:none;opacity:.5}
 
@@ -346,6 +349,7 @@ body.fullscreen #toolbar{display:none}
 body.fullscreen #canvas-wrap{top:0}
 body.fullscreen #help,body.fullscreen #status{display:none}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 </head>
 <body>
 
@@ -565,8 +569,42 @@ function persistToStorage(){
       zoom:state.zoom,panX:state.panX,panY:state.panY,nextId:state.nextId
     });
     localStorage.setItem(STORAGE_KEY,data);
+    if(window.gunState) window.gunState.put({ data: data });
   }catch(e){/* storage full */}
 }
+
+let gunState = null;
+let isRemoteUpdate = false;
+try {
+  const gun = Gun(['https://relay.peer.ooo/gun', 'https://gun-us.herokuapp.com/gun']);
+  window.gunState = gun.get('utrust-canvas-global-v3');
+  window.gunState.on((node) => {
+    if(isRemoteUpdate) return;
+    if(!node || !node.data) return;
+    try {
+      const raw = node.data;
+      const localRaw = localStorage.getItem(STORAGE_KEY);
+      if(raw === localRaw) return;
+      
+      const activeEl = document.activeElement;
+      const isEditing = activeEl && (activeEl.isContentEditable || activeEl.tagName === 'INPUT');
+      if (isEditing) return; // Wait for them to finish before pulling state
+      
+      const d = JSON.parse(raw);
+      if(!d.cards || !d.cards.length) return;
+      
+      isRemoteUpdate = true;
+      state.cards=d.cards;state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
+      state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
+      state.nextId=d.nextId||1;
+      
+      rebuildDOM();
+      applyTransform();
+      localStorage.setItem(STORAGE_KEY,raw);
+      setTimeout(()=>{ isRemoteUpdate=false; }, 50);
+    } catch(e){}
+  });
+} catch(err){}
 
 function loadFromStorage(){
   try{
@@ -652,7 +690,7 @@ function createCardEl(c){
   const delBtn=div.querySelector('.card-del');
   const resizeH=div.querySelector('.resize-handle');
 
-  header.addEventListener('mousedown',e=>{
+  header.addEventListener('pointerdown',e=>{
     if(e.target===titleEl||e.target===delBtn)return;
     e.preventDefault();
     startDrag(e,c.id,div);
@@ -662,14 +700,14 @@ function createCardEl(c){
   bodyEl.addEventListener('input',()=>{c.body=bodyEl.innerHTML;persistToStorage()});
   titleEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();bodyEl.focus()}});
 
-  div.addEventListener('mousedown',e=>{
+  div.addEventListener('pointerdown',e=>{
     if(e.target===resizeH)return;
     selectItem(c.id,e.shiftKey);
   });
 
   delBtn.addEventListener('click',e=>{e.stopPropagation();deleteCard(c.id)});
 
-  resizeH.addEventListener('mousedown',e=>{
+  resizeH.addEventListener('pointerdown',e=>{
     e.stopPropagation();e.preventDefault();
     resizingCard=c;
     resizeStart={mx:e.clientX,my:e.clientY,w:c.w};
@@ -728,7 +766,7 @@ function createSwimlaneEl(sl){
   const header=div.querySelector('.swimlane-header');
   const delBtn=div.querySelector('.sl-del');
   
-  header.addEventListener('mousedown',e=>{
+  header.addEventListener('pointerdown',e=>{
     if(e.target===delBtn) return;
     e.preventDefault();
     selectItem(sl.id, e.shiftKey);
@@ -736,7 +774,7 @@ function createSwimlaneEl(sl){
     slDragOff={x:e.clientX/state.zoom-sl.x, y:e.clientY/state.zoom-sl.y};
   });
 
-  div.addEventListener('mousedown',e=>{
+  div.addEventListener('pointerdown',e=>{
     if(!e.target.closest('.swimlane-header')) {
        selectItem(sl.id, e.shiftKey);
     }
@@ -1083,8 +1121,8 @@ wrap.addEventListener('wheel',e=>{
   }
 },{passive:false});
 
-wrap.addEventListener('mousedown',e=>{
-  if(e.button===1||(e.button===0&&spaceDn)){e.preventDefault();isPanning=true;panStart={x:e.clientX,y:e.clientY};panOrigin={x:state.panX,y:state.panY};wrap.style.cursor='grabbing'}
+wrap.addEventListener('pointerdown',e=>{
+  if(e.button===1||(e.button===0&&spaceDn)||e.pointerType==='touch'){e.preventDefault();isPanning=true;panStart={x:e.clientX,y:e.clientY};panOrigin={x:state.panX,y:state.panY};wrap.style.cursor='grabbing'}
 });
 wrap.addEventListener('dblclick',e=>{
   if(e.target!==wrap&&e.target!==canvas)return;
@@ -1093,7 +1131,7 @@ wrap.addEventListener('dblclick',e=>{
   addMenu.style.cssText=`display:block;left:${e.clientX}px;top:${Math.min(e.clientY,window.innerHeight-320)}px`;
 });
 
-document.addEventListener('mousemove',e=>{
+document.addEventListener('pointermove',e=>{
   if(isPanning){state.panX=panOrigin.x+(e.clientX-panStart.x);state.panY=panOrigin.y+(e.clientY-panStart.y);applyTransform()}
   if(dragCard){
     const nx=e.clientX/state.zoom-dragOff.x,ny=e.clientY/state.zoom-dragOff.y;
@@ -1115,8 +1153,8 @@ document.addEventListener('mousemove',e=>{
   }
 });
 
-document.addEventListener('mouseup',e=>{
-  if(e.button===1||(e.button===0&&spaceDn)){isPanning=false;wrap.style.cursor='default'}
+document.addEventListener('pointerup',e=>{
+  if(e.button===1||(e.button===0&&spaceDn)||e.pointerType==='touch'){isPanning=false;wrap.style.cursor='default'}
   if(dragCard&&dragOrigPos){saveHistory();dragCard=null}
   if(dragSwimlane){saveHistory();dragSwimlane=null}
   if(resizingCard){saveHistory();resizingCard=null}
@@ -2041,7 +2079,7 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
 });
 
 // Save on every pan/zoom stop
-wrap.addEventListener('mouseup',()=>persistToStorage());
+wrap.addEventListener('pointerup',()=>persistToStorage());
 
 // Save before page unload so nothing is lost on reload
 window.addEventListener('beforeunload',()=>{
