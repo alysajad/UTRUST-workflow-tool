@@ -581,7 +581,7 @@ function persistToStorage(skipRemotePush = false){
 let isRemoteUpdate = false;
 async function pollRemoteState() {
   try {
-    const res = await fetch(`https://kvdb.io/${KVDB_BUCKET}/state`);
+    const res = await fetch(`https://kvdb.io/${KVDB_BUCKET}/state?t=${Date.now()}`, { cache: "no-store" });
     if(!res.ok) return;
     const raw = await res.text();
     if(!raw || raw.trim() === '') return;
