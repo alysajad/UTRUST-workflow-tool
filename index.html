@@ -348,8 +348,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 body.fullscreen #toolbar{display:none}
 body.fullscreen #canvas-wrap{top:0}
 body.fullscreen #help,body.fullscreen #status{display:none}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 </head>
 <body>
 
@@ -561,7 +559,9 @@ function syncDOMToState(){
   });
 }
 
-function persistToStorage(skipGunPush = false){
+const KVDB_BUCKET = '6GnMP1HihsWcYVzBv4Avjk';
+
+function persistToStorage(skipRemotePush = false){
   syncDOMToState();
   try{
     const data=JSON.stringify({
@@ -569,42 +569,44 @@ function persistToStorage(skipGunPush = false){
       zoom:state.zoom,panX:state.panX,panY:state.panY,nextId:state.nextId
     });
     localStorage.setItem(STORAGE_KEY,data);
-    if(!skipGunPush && window.gunState) window.gunState.put({ data: data });
+    if(!skipRemotePush){
+      fetch(`https://kvdb.io/${KVDB_BUCKET}/state`, {
+        method: 'POST', body: data
+      }).catch(e=>{});
+    }
   }catch(e){/* storage full */}
 }
 
-let gunState = null;
 let isRemoteUpdate = false;
-try {
-  const gun = Gun(['https://relay.peer.ooo/gun', 'https://gun-us.herokuapp.com/gun']);
-  window.gunState = gun.get('utrust-canvas-global-v3');
-  window.gunState.on((node) => {
-    if(isRemoteUpdate) return;
-    if(!node || !node.data) return;
-    try {
-      const raw = node.data;
-      const localRaw = localStorage.getItem(STORAGE_KEY);
-      if(raw === localRaw) return;
-      
-      const activeEl = document.activeElement;
-      const isEditing = activeEl && (activeEl.isContentEditable || activeEl.tagName === 'INPUT');
-      if (isEditing) return; // Wait for them to finish before pulling state
-      
-      const d = JSON.parse(raw);
-      if(!d.cards || !d.cards.length) return;
-      
-      isRemoteUpdate = true;
-      state.cards=d.cards;state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
-      state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
-      state.nextId=d.nextId||1;
-      
-      rebuildDOM();
-      applyTransform();
-      localStorage.setItem(STORAGE_KEY,raw);
-      setTimeout(()=>{ isRemoteUpdate=false; }, 50);
-    } catch(e){}
-  });
-} catch(err){}
+async function pollRemoteState() {
+  try {
+    const res = await fetch(`https://kvdb.io/${KVDB_BUCKET}/state`);
+    if(!res.ok) return;
+    const raw = await res.text();
+    if(!raw || raw.trim() === '') return;
+    
+    const localRaw = localStorage.getItem(STORAGE_KEY);
+    if(raw === localRaw) return;
+    
+    const activeEl = document.activeElement;
+    const isEditing = activeEl && (activeEl.isContentEditable || activeEl.tagName === 'INPUT');
+    if (isEditing) return; // Wait for them to finish before pulling state
+    
+    const d = JSON.parse(raw);
+    if(!d.cards || !d.cards.length) return;
+    
+    isRemoteUpdate = true;
+    state.cards=d.cards;state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
+    state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
+    state.nextId=d.nextId||1;
+    
+    rebuildDOM();
+    applyTransform();
+    localStorage.setItem(STORAGE_KEY,raw);
+  } catch(e){}
+}
+setInterval(pollRemoteState, 2000);
+setTimeout(pollRemoteState, 500); // Initial fast load
 
 function loadFromStorage(){
   try{
@@ -646,13 +648,13 @@ function loadFromStorage(){
   }catch(e){return false}
 }
 
-function saveHistory(skipGunPush = false){
+function saveHistory(skipRemotePush = false){
   const snap=JSON.parse(JSON.stringify({cards:state.cards,arrows:state.arrows,swimlanes:state.swimlanes}));
   state.history=state.history.slice(0,state.histIdx+1);
   state.history.push(snap);
   if(state.history.length>60)state.history.shift();
   state.histIdx=state.history.length-1;
-  persistToStorage(skipGunPush);
+  persistToStorage(skipRemotePush);
 }
 
 function undo(){
