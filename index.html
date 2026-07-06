@@ -561,7 +561,7 @@ function syncDOMToState(){
   });
 }
 
-function persistToStorage(){
+function persistToStorage(skipGunPush = false){
   syncDOMToState();
   try{
     const data=JSON.stringify({
@@ -569,7 +569,7 @@ function persistToStorage(){
       zoom:state.zoom,panX:state.panX,panY:state.panY,nextId:state.nextId
     });
     localStorage.setItem(STORAGE_KEY,data);
-    if(window.gunState) window.gunState.put({ data: data });
+    if(!skipGunPush && window.gunState) window.gunState.put({ data: data });
   }catch(e){/* storage full */}
 }
 
@@ -646,13 +646,13 @@ function loadFromStorage(){
   }catch(e){return false}
 }
 
-function saveHistory(){
+function saveHistory(skipGunPush = false){
   const snap=JSON.parse(JSON.stringify({cards:state.cards,arrows:state.arrows,swimlanes:state.swimlanes}));
   state.history=state.history.slice(0,state.histIdx+1);
   state.history.push(snap);
   if(state.history.length>60)state.history.shift();
   state.histIdx=state.history.length-1;
-  persistToStorage();
+  persistToStorage(skipGunPush);
 }
 
 function undo(){
@@ -2050,7 +2050,7 @@ function loadDefaultContent(){
   const data = getDefaultData();
   state.cards=data.cards;state.arrows=data.arrows;state.swimlanes=data.swimlanes;state.zoom=data.zoom;
   state.panX=data.panX;state.panY=data.panY;state.nextId=data.nextId;
-  rebuildDOM();applyTransform();saveHistory();
+  rebuildDOM();applyTransform();saveHistory(true); // Don't push default to everyone
   buildWfNav();
 }
 
@@ -2060,10 +2060,10 @@ if(window.__SAVED_STATE__){
   state.cards=d.cards||[];state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
   state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
   state.nextId=d.nextId||1;state.selectedIds=[];state.history=[];state.histIdx=-1;
-  rebuildDOM();applyTransform();saveHistory();
+  rebuildDOM();applyTransform();saveHistory(true);
   buildWfNav();
 } else if(loadFromStorage()){
-  rebuildDOM();applyTransform();saveHistory();
+  rebuildDOM();applyTransform();saveHistory(true);
   buildWfNav();
 } else {
   loadDefaultContent();
@@ -2075,6 +2075,7 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
     localStorage.removeItem(STORAGE_KEY);
     state.history=[];state.histIdx=-1;
     loadDefaultContent();
+    persistToStorage(false); // Explicitly push the reset to everyone
   }
 });
 
