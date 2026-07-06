@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTrust Toyota U-Car Procurement Canvas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;
+  --card:#ffffff;
+  --border:#e0ddd6;
+  --border-strong:#c8c5bc;
+  --text:#1a1a18;
+  --text2:#5a5955;
+  --text3:#9a9892;
+  --red:#EB0A1E;
+  --red-bg:#fde8ea;
+  --red-text:#8b0611;
+  --blue:#185FA5;
+  --blue-bg:#E6F1FB;
+  --blue-text:#0C447C;
+  --green:#0F6E56;
+  --green-bg:#E1F5EE;
+  --green-text:#085041;
+  --amber:#854F0B;
+  --amber-bg:#FAEEDA;
+  --amber-text:#633806;
+  --purple:#534AB7;
+  --purple-bg:#EEEDFE;
+  --purple-text:#3C3489;
+  --pink:#993556;
+  --pink-bg:#FBEAF0;
+  --pink-text:#72243E;
+  --teal:#1D9E75;
+  --teal-bg:#E1F5EE;
+  --teal-text:#085041;
+  --warn-bg:#FCEBEB;
+  --warn-text:#A32D2D;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a18;--card:#252523;--border:#3a3936;--border-strong:#555350;
+    --text:#e8e6e0;--text2:#a8a69e;--text3:#6a6860;
+    --red-bg:#3d1215;--red-text:#f5a0a7;
+    --blue-bg:#0c2d4a;--blue-text:#85B7EB;
+    --green-bg:#062e22;--green-text:#5DCAA5;
+    --amber-bg:#3a2005;--amber-text:#FAC775;
+    --purple-bg:#1e1a52;--purple-text:#AFA9EC;
+    --pink-bg:#3d1628;--pink-text:#ED93B1;
+    --warn-bg:#3d1515;--warn-text:#F09595;
+  }
+}
+
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:var(--text);display:flex;flex-direction:column}
+
+/* TOOLBAR */
+#toolbar{
+  width:100%;min-height:56px;height:56px;
+  background:var(--card);border-bottom:1px solid var(--border);
+  display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:0 12px;z-index:1000;
+  user-select:none;
+  flex:0 0 auto;
+  overflow:hidden;
+}
+@media (max-width: 1400px) {
+  .tb-btn .tb-text { display: none; }
+  .tb-title { display: none; }
+  .tb-badge { display: none; }
+  #search-box { width: 100px; }
+  #toolbar { gap: 4px; padding: 0 6px; }
+  .tb-btn { padding: 0 8px; }
+  .tb-right { gap: 4px; }
+}
+@media (max-width: 800px) {
+  .zoom-val { display: none; }
+  .color-strip { display: none; }
+}
+.tb-title{font-size:14px;font-weight:600;color:var(--text);margin-right:4px}
+.tb-badge{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:500}
+.tb-sep{width:1px;height:24px;background:var(--border);margin:0 4px}
+.tb-btn{
+  height:34px;padding:0 12px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text2);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+  transition:background .1s,border-color .1s;
+}
+.tb-btn:hover{background:var(--card);border-color:var(--border-strong);color:var(--text)}
+.tb-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tb-btn.active-btn{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-text)}
+.zoom-val{font-size:13px;color:var(--text2);min-width:40px;text-align:center}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.color-strip{display:flex;gap:3px;align-items:center}
+.color-dot{width:16px;height:16px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .1s}
+.color-dot:hover,.color-dot.active{border-color:var(--text)}
+
+/* SEARCH */
+#search-box{
+  height:34px;padding:0 10px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);font-size:13px;width:160px;
+  outline:none;transition:border-color .15s;
+}
+#search-box:focus{border-color:var(--blue);width:180px}
+#search-box::placeholder{color:var(--text3)}
+
+/* CANVAS */
+#canvas-wrap{position:relative;flex:1 1 0;width:100%;overflow:hidden;cursor:default}
+#canvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+#grid-bg{position:absolute;top:0;left:0;pointer-events:none;opacity:.5}
+
+/* CARDS */
+.card{
+  position:absolute;min-width:200px;max-width:340px;
+  background:var(--card);border:1.5px solid var(--border);border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+  user-select:none;
+  transition:opacity .2s;
+}
+.card.selected{border-color:var(--blue)!important;box-shadow:0 0 0 2px rgba(24,95,165,.15)}
+.card.search-hit{box-shadow:0 0 0 3px var(--amber),0 0 12px rgba(133,79,11,.25)!important}
+.card.dimmed{opacity:.2}
+.card-header{
+  display:flex;align-items:center;gap:6px;padding:9px 11px 8px;
+  border-radius:10px 10px 0 0;cursor:grab;
+  border-bottom:1px solid var(--border);
+}
+.card-header:active{cursor:grabbing}
+.card-tag{font-size:9px;font-weight:600;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.4px}
+.card-title{
+  font-size:12px;font-weight:600;color:var(--text);outline:none;flex:1;
+  cursor:text;min-width:60px;word-break:break-word;
+}
+.card-title:focus{outline:none;background:rgba(24,95,165,.06);border-radius:3px;padding:1px 3px;margin:-1px -3px}
+.card-body{padding:10px 11px;min-height:40px}
+.card-content{
+  font-size:12px;color:var(--text2);line-height:1.55;outline:none;
+  word-break:break-word;white-space:pre-wrap;min-height:20px;
+}
+.card-content:focus{outline:none}
+.card-content:empty:before{content:attr(data-ph);color:var(--text3);pointer-events:none}
+.card-footer{
+  padding:6px 11px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:5px;
+}
+.step-badge{font-size:9px;padding:1px 5px;border-radius:2px;font-weight:500}
+.card-del{margin-left:auto;width:20px;height:20px;border-radius:4px;border:none;background:transparent;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1}
+.card-del:hover{background:var(--warn-bg);color:var(--warn-text)}
+.resize-handle{position:absolute;bottom:3px;right:4px;width:12px;height:12px;cursor:se-resize;color:var(--text3);font-size:10px;text-align:center;line-height:12px}
+
+/* ARROWS */
+#arrow-layer{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
+.arrow-line{stroke:var(--border-strong);stroke-width:1.5;fill:none;stroke-dasharray:5 3;marker-end:url(#arrowhead)}
+
+/* ADD MENU */
+#add-menu{
+  position:fixed;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);
+  padding:6px;z-index:2000;min-width:180px;display:none;
+}
+#add-menu.show{display:block}
+.menu-item{
+  padding:7px 10px;border-radius:5px;cursor:pointer;font-size:12px;
+  display:flex;align-items:center;gap:8px;color:var(--text2);
+}
+.menu-item:hover{background:var(--bg);color:var(--text)}
+.menu-dot{width:10px;height:10px;border-radius:50%}
+
+/* EXPORT MENU */
+#export-menu{
+  position:fixed;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);
+  padding:6px;z-index:2000;min-width:160px;display:none;
+}
+#export-menu .menu-item{padding:7px 10px;border-radius:5px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px;color:var(--text2)}
+#export-menu .menu-item:hover{background:var(--bg);color:var(--text)}
+
+/* MINIMAP */
+#minimap{
+  position:fixed;bottom:16px;right:16px;width:160px;height:100px;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;z-index:500;
+}
+#minimap-canvas{width:100%;height:100%}
+#minimap-viewport{position:absolute;border:1.5px solid var(--blue);border-radius:2px;pointer-events:none}
+
+/* STATUS */
+#status{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  font-size:11px;color:var(--text3);background:var(--card);
+  padding:4px 12px;border-radius:20px;border:1px solid var(--border);z-index:500}
+
+/* HELP */
+#help{position:fixed;bottom:16px;left:16px;font-size:11px;color:var(--text3);z-index:500;line-height:1.7}
+
+/* WORKFLOW NAVIGATOR SIDEBAR */
+#wf-nav{
+  position:fixed;top:48px;right:0;width:0;bottom:0;
+  background:var(--card);border-left:1px solid var(--border);
+  z-index:900;overflow-y:auto;overflow-x:hidden;
+  transition:width .2s;
+}
+#wf-nav.open{width:260px}
+#wf-nav-inner{padding:14px;opacity:0;transition:opacity .15s}
+#wf-nav.open #wf-nav-inner{opacity:1}
+.wf-nav-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.wf-nav-group{margin-bottom:14px}
+.wf-nav-group-title{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;padding-left:4px}
+.wf-nav-item{
+  padding:7px 10px;border-radius:6px;cursor:pointer;font-size:11px;
+  color:var(--text2);display:flex;align-items:center;gap:8px;
+  margin-bottom:2px;transition:background .1s;
+}
+.wf-nav-item:hover{background:var(--bg);color:var(--text)}
+.wf-nav-item .wf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.wf-nav-item .wf-label{flex:1;line-height:1.3}
+.wf-nav-sep{height:1px;background:var(--border);margin:10px 0}
+
+/* FILTER BAR */
+#filter-bar{
+  position:fixed;top:48px;left:0;right:0;height:0;
+  background:var(--card);border-bottom:1px solid var(--border);
+  z-index:800;overflow:hidden;transition:height .15s;
+  display:flex;align-items:center;gap:8px;padding:0 14px;
+}
+#filter-bar.open{height:36px}
+.filter-chip{
+  height:24px;padding:0 10px;border-radius:12px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text2);font-size:11px;cursor:pointer;
+  display:flex;align-items:center;gap:4px;white-space:nowrap;
+  transition:all .1s;
+}
+.filter-chip:hover,.filter-chip.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-text)}
+.filter-chip .fc-dot{width:8px;height:8px;border-radius:50%}
+
+/* SHORTCUTS MODAL */
+#shortcuts-modal{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.4);z-index:3000;display:none;
+  align-items:center;justify-content:center;
+}
+#shortcuts-modal.show{display:flex}
+#shortcuts-inner{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:24px 28px;min-width:360px;max-width:440px;
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+}
+.sc-title{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.sc-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)}
+.sc-row:last-child{border-bottom:none}
+.sc-key{font-weight:600;color:var(--text);font-family:monospace;font-size:11px;background:var(--bg);padding:1px 6px;border-radius:3px;border:1px solid var(--border)}
+
+/* SWIMLANE DIAGRAM */
+.swimlane-container{
+  position:absolute;
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+  overflow:visible;
+  user-select:none;
+}
+.swimlane-header{
+  padding:10px 14px;
+  border-bottom:2px solid var(--border);
+  font-size:13px;font-weight:700;color:var(--text);
+  cursor:grab;
+  border-radius:10px 10px 0 0;
+  background:var(--red-bg);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.swimlane-header:active{cursor:grabbing}
+.swimlane-header-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.swimlane-container.selected { border-color: var(--blue) !important; box-shadow: 0 0 0 2px rgba(24,95,165,.15); }
+.sl-del{
+  width:20px;height:20px;border-radius:4px;border:none;background:transparent;
+  cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;
+  font-size:13px;line-height:1;margin-left:8px;flex-shrink:0;
+}
+.sl-del:hover{background:var(--warn-bg);color:var(--warn-text)}
+.swimlane-body{position:relative;overflow:visible}
+.swim-lane{
+  display:flex;align-items:stretch;
+  border-bottom:1px solid var(--border);
+  min-height:60px;
+}
+.swim-lane:last-child{border-bottom:none}
+.swim-lane-label{
+  width:80px;min-width:80px;
+  padding:8px 6px;
+  font-size:10px;font-weight:600;color:var(--text2);
+  border-right:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  writing-mode:horizontal-tb;
+  line-height:1.3;
+}
+.swim-lane-label.alt-bg{background:rgba(0,0,0,.02)}
+.swim-lane-content{
+  flex:1;padding:8px 10px;
+  display:flex;align-items:center;gap:8px;
+  flex-wrap:wrap;
+  position:relative;
+}
+.swim-lane-content.alt-bg{background:rgba(0,0,0,.02)}
+.swim-step{
+  padding:5px 9px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:10px;
+  color:var(--text2);
+  line-height:1.4;
+  max-width:180px;
+  min-width:80px;
+  text-align:center;
+  position:relative;
+}
+.swim-step .step-num{
+  position:absolute;top:-7px;left:-7px;
+  width:16px;height:16px;
+  border-radius:50%;
+  background:var(--blue);color:#fff;
+  font-size:8px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.swim-step.decision{
+  background:var(--amber-bg);
+  border-color:var(--amber);
+  transform:rotate(0deg);
+  border-radius:2px;
+}
+.swim-step.highlight{
+  background:var(--green-bg);
+  border-color:var(--green);
+}
+.swim-step.warn-step{
+  background:var(--warn-bg);
+  border-color:var(--warn-text);
+}
+.swim-arrow{
+  color:var(--text3);font-size:14px;
+  display:flex;align-items:center;
+}
+
+/* FULLSCREEN */
+body.fullscreen #toolbar{display:none}
+body.fullscreen #canvas-wrap{top:0}
+body.fullscreen #help,body.fullscreen #status{display:none}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <span class="tb-title">🚗 UTrust Toyota</span>
+  <span class="tb-badge" style="background:var(--red-bg);color:var(--red-text)">U-Car Procurement Canvas</span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btn-add" title="Add card">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span class="tb-text">Add card</span>
+  </button>
+  <button class="tb-btn" id="btn-add-section" title="Add section">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+    <span class="tb-text">Add section</span>
+  </button>
+  <button class="tb-btn" id="btn-connect" title="Draw arrow: click this then click two cards">
+    <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    <span class="tb-text">Connect</span>
+  </button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btn-filter" title="Filter by role">
+    <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+    <span class="tb-text">Filter</span>
+  </button>
+  <button class="tb-btn" id="btn-workflows" title="Workflow navigator">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span class="tb-text">Workflows</span>
+  </button>
+  <div class="tb-sep"></div>
+  <input type="text" id="search-box" placeholder="Search cards… (/)">
+  <div class="tb-sep"></div>
+  <div class="color-strip" id="color-strip"></div>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btn-zoom-out" title="Zoom out">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <span class="zoom-val" id="zoom-val">100%</span>
+  <button class="tb-btn" id="btn-zoom-in" title="Zoom in">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-fit" title="Fit all">
+    <svg viewBox="0 0 24 24"><path d="M4 14v6h6M20 10V4h-6M10 20H4M20 14v6h-6M4 4h6"/></svg>
+    <span class="tb-text">Fit all</span>
+  </button>
+  <div class="tb-right">
+    <button class="tb-btn" id="btn-fullscreen" title="Fullscreen (F11)">
+      <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+    </button>
+    <button class="tb-btn" id="btn-export" title="Export">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="tb-text">Export</span>
+    </button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-save-html" title="Save as HTML">
+      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <span class="tb-text">Save HTML</span>
+    </button>
+    <button class="tb-btn" id="btn-save" title="Export JSON">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="tb-text">Export JSON</span>
+    </button>
+    <button class="tb-btn" id="btn-load" title="Load JSON">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="tb-text">Load JSON</span>
+    </button>
+    <button class="tb-btn" id="btn-reset" title="Reset canvas to defaults">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <span class="tb-text">Reset</span>
+    </button>
+    <button class="tb-btn" id="btn-shortcuts" title="Keyboard shortcuts (?)">?</button>
+    <button class="tb-btn" id="btn-delete-selected" title="Delete selected (Del)" style="color:var(--warn-text)">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+    </button>
+    <input type="file" id="file-input" accept=".json" style="display:none">
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div id="filter-bar"></div>
+
+<!-- WORKFLOW NAVIGATOR -->
+<div id="wf-nav">
+  <div id="wf-nav-inner"></div>
+</div>
+
+<div id="canvas-wrap">
+  <svg id="arrow-layer">
+    <defs>
+      <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#c8c5bc"/>
+      </marker>
+    </defs>
+  </svg>
+  <div id="canvas"></div>
+</div>
+
+<div id="add-menu">
+  <div class="menu-item" data-color="default"><span class="menu-dot" style="background:#e0ddd6"></span>Default card</div>
+  <div class="menu-item" data-color="red"><span class="menu-dot" style="background:#EB0A1E"></span>Section / Chapter</div>
+  <div class="menu-item" data-color="blue"><span class="menu-dot" style="background:#185FA5"></span>PO step</div>
+  <div class="menu-item" data-color="green"><span class="menu-dot" style="background:#0F6E56"></span>SO step</div>
+  <div class="menu-item" data-color="amber"><span class="menu-dot" style="background:#854F0B"></span>TL / PTL step</div>
+  <div class="menu-item" data-color="purple"><span class="menu-dot" style="background:#534AB7"></span>PI step</div>
+  <div class="menu-item" data-color="pink"><span class="menu-dot" style="background:#993556"></span>Customer step</div>
+  <div class="menu-item" data-color="warn"><span class="menu-dot" style="background:#A32D2D"></span>Improvement</div>
+  <div class="menu-item" data-color="teal"><span class="menu-dot" style="background:#1D9E75"></span>System step</div>
+</div>
+
+<!-- EXPORT MENU -->
+<div id="export-menu">
+  <div class="menu-item" id="export-png"><span style="font-size:14px">🖼</span> Export as PNG</div>
+  <div class="menu-item" id="export-svg"><span style="font-size:14px">📐</span> Export as SVG</div>
+  <div class="menu-item" id="export-pdf"><span style="font-size:14px">📄</span> Export as PDF</div>
+  <div class="menu-item" id="export-md"><span style="font-size:14px">📝</span> Export as Markdown</div>
+</div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcuts-modal">
+  <div id="shortcuts-inner">
+    <div class="sc-title">Keyboard shortcuts</div>
+    <div class="sc-row"><span>Pan canvas</span><span class="sc-key">Space + Drag</span></div>
+    <div class="sc-row"><span>Pan canvas</span><span class="sc-key">Middle Mouse</span></div>
+    <div class="sc-row"><span>Zoom</span><span class="sc-key">Scroll Wheel</span></div>
+    <div class="sc-row"><span>Add card</span><span class="sc-key">Double Click</span></div>
+    <div class="sc-row"><span>Undo</span><span class="sc-key">Ctrl+Z</span></div>
+    <div class="sc-row"><span>Delete selected</span><span class="sc-key">Del / Backspace</span></div>
+    <div class="sc-row"><span>Deselect / Close</span><span class="sc-key">Esc</span></div>
+    <div class="sc-row"><span>Search cards</span><span class="sc-key">/</span></div>
+    <div class="sc-row"><span>Fit all cards</span><span class="sc-key">Ctrl+Shift+F</span></div>
+    <div class="sc-row"><span>Fullscreen</span><span class="sc-key">F11</span></div>
+    <div class="sc-row"><span>Toggle filter</span><span class="sc-key">F</span></div>
+    <div class="sc-row"><span>Toggle workflows</span><span class="sc-key">W</span></div>
+    <div class="sc-row"><span>Show shortcuts</span><span class="sc-key">?</span></div>
+    <div style="margin-top:12px;text-align:center">
+      <button class="tb-btn" onclick="document.getElementById('shortcuts-modal').classList.remove('show')" style="margin:0 auto">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="minimap"><canvas id="minimap-canvas"></canvas><div id="minimap-viewport"></div></div>
+<div id="status">Scroll: pan up/down · Ctrl+Scroll: zoom · Space+drag: pan · Double-click: add card · Click card: edit</div>
+<div id="help">⌘Z undo · Del delete selected · Esc deselect · Space+drag pan · ? shortcuts</div>
+
+<script>
+const COLORS = {
+  default:{bg:'var(--card)',border:'var(--border)',tag:'default',tagBg:'var(--bg)',tagColor:'var(--text3)'},
+  red:    {bg:'var(--red-bg)',border:'#f5a0a7',tag:'chapter',tagBg:'#EB0A1E',tagColor:'#fff'},
+  blue:   {bg:'var(--blue-bg)',border:'#B5D4F4',tag:'PO',tagBg:'var(--blue)',tagColor:'#fff'},
+  green:  {bg:'var(--green-bg)',border:'#9FE1CB',tag:'SO',tagBg:'var(--green)',tagColor:'#fff'},
+  amber:  {bg:'var(--amber-bg)',border:'#FAC775',tag:'TL',tagBg:'var(--amber)',tagColor:'#fff'},
+  purple: {bg:'var(--purple-bg)',border:'#CECBF6',tag:'PI',tagBg:'var(--purple)',tagColor:'#fff'},
+  pink:   {bg:'var(--pink-bg)',border:'#F4C0D1',tag:'customer',tagBg:'var(--pink)',tagColor:'#fff'},
+  warn:   {bg:'var(--warn-bg)',border:'#F7C1C1',tag:'improvement',tagBg:'#A32D2D',tagColor:'#fff'},
+  teal:   {bg:'var(--teal-bg)',border:'#9FE1CB',tag:'system',tagBg:'var(--teal)',tagColor:'#fff'},
+};
+
+let state={
+  cards:[],
+  arrows:[],
+  swimlanes:[],
+  selectedIds:[],
+  nextId:1,
+  zoom:1,
+  panX:0,panY:0,
+  connectMode:false,
+  connectFrom:null,
+  history:[],
+  histIdx:-1,
+};
+
+const canvas=document.getElementById('canvas');
+const wrap=document.getElementById('canvas-wrap');
+const arrowLayer=document.getElementById('arrow-layer');
+const addMenu=document.getElementById('add-menu');
+const exportMenu=document.getElementById('export-menu');
+let isPanning=false,panStart={x:0,y:0},panOrigin={x:0,y:0};
+let spaceDn=false;
+let dragCard=null,dragOff={x:0,y:0},dragOrigPos=null;
+let dragSwimlane=null,slDragOff={x:0,y:0};
+let resizingCard=null,resizeStart=null;
+let pendingAddPos=null;
+let activePaintColor=null;
+let filterBarOpen=false;
+let activeFilters=new Set();
+let wfNavOpen=false;
+let mmCtx=document.getElementById('minimap-canvas').getContext('2d');
+
+function applyTransform(){
+  canvas.style.transform=`translate(${state.panX}px,${state.panY}px) scale(${state.zoom})`;
+  document.getElementById('zoom-val').textContent=Math.round(state.zoom*100)+'%';
+  updateArrows();
+  updateMinimap();
+  // adjust canvas wrap top if filter bar open
+  const filterH=filterBarOpen?36:0;
+  wrap.style.top=(48+filterH)+'px';
+}
+
+const STORAGE_KEY='utrust_canvas_state_v5';
+
+function syncDOMToState(){
+  state.cards.forEach(c=>{
+    const el=canvas.querySelector(`[data-id="${c.id}"]`);
+    if(el){
+      const t=el.querySelector('.card-title');
+      const b=el.querySelector('.card-content');
+      if(t) c.title=t.innerHTML;
+      if(b) c.body=b.innerHTML;
+    }
+  });
+}
+
+function persistToStorage(){
+  syncDOMToState();
+  try{
+    const data=JSON.stringify({
+      cards:state.cards,arrows:state.arrows,swimlanes:state.swimlanes,
+      zoom:state.zoom,panX:state.panX,panY:state.panY,nextId:state.nextId
+    });
+    localStorage.setItem(STORAGE_KEY,data);
+  }catch(e){/* storage full */}
+}
+
+function loadFromStorage(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    if(!d.cards||!d.cards.length)return false;
+    
+    // Merge new updates from default data
+    const defaultData = getDefaultData();
+    const existingCardIds = new Set(d.cards.map(c=>c.id));
+    defaultData.cards.forEach(c => {
+      if(!existingCardIds.has(c.id)) d.cards.push(JSON.parse(JSON.stringify(c)));
+    });
+    if(defaultData.swimlanes) {
+      if(!d.swimlanes) d.swimlanes = [];
+      const existingSlIds = new Set(d.swimlanes.map(sl=>sl.id));
+      defaultData.swimlanes.forEach(sl => {
+        if(!existingSlIds.has(sl.id)) d.swimlanes.push(JSON.parse(JSON.stringify(sl)));
+      });
+    }
+    const existingArrows = new Set((d.arrows||[]).map(a=>a.from+'->'+a.to));
+    defaultData.arrows.forEach(a => {
+      if(!existingArrows.has(a.from+'->'+a.to)) {
+        const hasFrom = d.cards.find(c=>c.id===a.from) || (d.swimlanes&&d.swimlanes.find(sl=>sl.id===a.from));
+        const hasTo = d.cards.find(c=>c.id===a.to) || (d.swimlanes&&d.swimlanes.find(sl=>sl.id===a.to));
+        if(hasFrom && hasTo) {
+          if(!d.arrows) d.arrows=[];
+          d.arrows.push(JSON.parse(JSON.stringify(a)));
+        }
+      }
+    });
+
+    state.cards=d.cards;state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
+    state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
+    state.nextId=Math.max(d.nextId||1, defaultData.nextId);
+    state.selectedIds=[];state.history=[];state.histIdx=-1;
+    return true;
+  }catch(e){return false}
+}
+
+function saveHistory(){
+  const snap=JSON.parse(JSON.stringify({cards:state.cards,arrows:state.arrows,swimlanes:state.swimlanes}));
+  state.history=state.history.slice(0,state.histIdx+1);
+  state.history.push(snap);
+  if(state.history.length>60)state.history.shift();
+  state.histIdx=state.history.length-1;
+  persistToStorage();
+}
+
+function undo(){
+  if(state.histIdx<=0)return;
+  state.histIdx--;
+  const snap=state.history[state.histIdx];
+  state.cards=JSON.parse(JSON.stringify(snap.cards));
+  state.arrows=JSON.parse(JSON.stringify(snap.arrows));
+  state.swimlanes=JSON.parse(JSON.stringify(snap.swimlanes||[]));
+  rebuildDOM();
+}
+
+function createCardEl(c){
+  const col=COLORS[c.color]||COLORS.default;
+  const div=document.createElement('div');
+  div.className='card';div.dataset.id=c.id;
+  div.style.cssText=`left:${c.x}px;top:${c.y}px;width:${c.w}px;background:${col.bg};border-color:${col.border}`;
+  div.innerHTML=`
+    <div class="card-header">
+      <span class="card-tag" style="background:${col.tagBg};color:${col.tagColor}">${col.tag}</span>
+      <div class="card-title" contenteditable="true" spellcheck="false" data-ph="Title…">${c.title||''}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-content" contenteditable="true" spellcheck="false" data-ph="Notes, steps, details…">${c.body||''}</div>
+    </div>
+    <div class="card-footer">
+      <span style="font-size:9px;color:var(--text3)">${c.timestamp||''}</span>
+      <button class="card-del" title="Delete">✕</button>
+      <span class="resize-handle" title="Resize">⟲</span>
+    </div>`;
+
+  const header=div.querySelector('.card-header');
+  const titleEl=div.querySelector('.card-title');
+  const bodyEl=div.querySelector('.card-content');
+  const delBtn=div.querySelector('.card-del');
+  const resizeH=div.querySelector('.resize-handle');
+
+  header.addEventListener('mousedown',e=>{
+    if(e.target===titleEl||e.target===delBtn)return;
+    e.preventDefault();
+    startDrag(e,c.id,div);
+  });
+
+  titleEl.addEventListener('input',()=>{c.title=titleEl.innerHTML;updateMinimap();persistToStorage()});
+  bodyEl.addEventListener('input',()=>{c.body=bodyEl.innerHTML;persistToStorage()});
+  titleEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();bodyEl.focus()}});
+
+  div.addEventListener('mousedown',e=>{
+    if(e.target===resizeH)return;
+    selectItem(c.id,e.shiftKey);
+  });
+
+  delBtn.addEventListener('click',e=>{e.stopPropagation();deleteCard(c.id)});
+
+  resizeH.addEventListener('mousedown',e=>{
+    e.stopPropagation();e.preventDefault();
+    resizingCard=c;
+    resizeStart={mx:e.clientX,my:e.clientY,w:c.w};
+  });
+
+  if(state.connectMode){
+    div.style.cursor='crosshair';
+    div.addEventListener('click',()=>handleConnectClick(c.id),{once:false});
+  }
+
+  // Apply dim if filter active
+  if(activeFilters.size>0 && !activeFilters.has(c.color)){
+    div.classList.add('dimmed');
+  }
+
+  canvas.appendChild(div);
+  return div;
+}
+
+// Create swimlane diagram element
+function createSwimlaneEl(sl){
+  const div=document.createElement('div');
+  div.className='swimlane-container';
+  div.dataset.slid=sl.id;
+  div.style.cssText=`left:${sl.x}px;top:${sl.y}px;width:${sl.w}px`;
+
+  let lanesHtml='';
+  sl.lanes.forEach((lane,i)=>{
+    const altClass=i%2===1?'alt-bg':'';
+    let stepsHtml='';
+    lane.steps.forEach(step=>{
+      let cls='swim-step';
+      if(step.type==='decision') cls+=' decision';
+      if(step.type==='highlight') cls+=' highlight';
+      if(step.type==='warn') cls+=' warn-step';
+      const numHtml=step.num?`<span class="step-num">${step.num}</span>`:'';
+      stepsHtml+=`<div class="${cls}">${numHtml}${step.text}</div>`;
+      if(step.arrow!==false && lane.steps.indexOf(step)<lane.steps.length-1){
+        stepsHtml+=`<span class="swim-arrow">→</span>`;
+      }
+    });
+    lanesHtml+=`
+      <div class="swim-lane">
+        <div class="swim-lane-label ${altClass}">${lane.role}</div>
+        <div class="swim-lane-content ${altClass}">${stepsHtml}</div>
+      </div>`;
+  });
+
+  div.innerHTML=`
+    <div class="swimlane-header">
+      <div class="swimlane-header-title">${sl.title}</div>
+      <button class="sl-del" title="Delete section">✕</button>
+    </div>
+    <div class="swimlane-body">${lanesHtml}</div>`;
+
+  const header=div.querySelector('.swimlane-header');
+  const delBtn=div.querySelector('.sl-del');
+  
+  header.addEventListener('mousedown',e=>{
+    if(e.target===delBtn) return;
+    e.preventDefault();
+    selectItem(sl.id, e.shiftKey);
+    dragSwimlane=sl;
+    slDragOff={x:e.clientX/state.zoom-sl.x, y:e.clientY/state.zoom-sl.y};
+  });
+
+  div.addEventListener('mousedown',e=>{
+    if(!e.target.closest('.swimlane-header')) {
+       selectItem(sl.id, e.shiftKey);
+    }
+  });
+  
+  if(delBtn) {
+    delBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if(confirm('Are you sure you want to delete this entire section?')) {
+        deleteSwimlane(sl.id);
+      }
+    });
+  }
+
+  canvas.appendChild(div);
+  return div;
+}
+
+function rebuildDOM(){
+  canvas.innerHTML='';
+  arrowLayer.innerHTML=`<defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#c8c5bc"/></marker></defs>`;
+  state.cards.forEach(c=>createCardEl(c));
+  (state.swimlanes||[]).forEach(sl=>createSwimlaneEl(sl));
+  updateArrows();
+  updateMinimap();
+}
+
+function addCard(x,y,color,title,body){
+  const c={
+    id:'c'+(state.nextId++),
+    x:x-(state.panX/state.zoom),
+    y:y-(state.panY/state.zoom),
+    w:240,color:color||'default',
+    title:title||'',body:body||'',
+    timestamp:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'})
+  };
+  state.cards.push(c);
+  createCardEl(c);
+  saveHistory();
+  updateMinimap();
+  return c;
+}
+
+function deleteCard(id){
+  saveHistory();
+  state.cards=state.cards.filter(c=>c.id!==id);
+  state.arrows=state.arrows.filter(a=>a.from!==id&&a.to!==id);
+  const el=canvas.querySelector(`[data-id="${id}"]`);
+  if(el)el.remove();
+  updateArrows();updateMinimap();
+}
+
+function deleteSwimlane(id){
+  saveHistory();
+  state.swimlanes = (state.swimlanes||[]).filter(sl=>sl.id!==id);
+  const el=canvas.querySelector(`[data-slid="${id}"]`);
+  if(el)el.remove();
+  updateMinimap();
+  persistToStorage();
+}
+
+function selectItem(id,multi){
+  if(state.connectMode){if(!id.startsWith('sl-'))handleConnectClick(id);return}
+  if(!multi)state.selectedIds=[];
+  if(!state.selectedIds.includes(id))state.selectedIds.push(id);
+  canvas.querySelectorAll('.card, .swimlane-container').forEach(el=>{
+    const elId = el.dataset.id || el.dataset.slid;
+    el.classList.toggle('selected',state.selectedIds.includes(elId));
+  });
+}
+
+function deselectAll(){
+  state.selectedIds=[];
+  canvas.querySelectorAll('.card, .swimlane-container').forEach(el=>el.classList.remove('selected'));
+}
+
+function startDrag(e,id,el){
+  e.preventDefault();
+  selectItem(id,false);
+  const c=state.cards.find(x=>x.id===id);
+  dragCard={c,el};
+  dragOff={x:e.clientX/state.zoom-c.x,y:e.clientY/state.zoom-c.y};
+  dragOrigPos={x:c.x,y:c.y};
+}
+
+function cardCenterScreen(id){
+  const c=state.cards.find(x=>x.id===id);if(!c)return null;
+  return{x:c.x*state.zoom+state.panX+(c.w/2)*state.zoom,y:c.y*state.zoom+state.panY+40*state.zoom};
+}
+
+function updateArrows(){
+  arrowLayer.querySelectorAll('.arrow-line').forEach(e=>e.remove());
+  state.arrows.forEach(a=>{
+    const from=cardCenterScreen(a.from),to=cardCenterScreen(a.to);
+    if(!from||!to)return;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.className.baseVal='arrow-line';
+    const dx=to.x-from.x,dy=to.y-from.y,cx=from.x+dx*.5,cy=from.y;
+    line.setAttribute('d',`M${from.x},${from.y} C${cx},${cy} ${cx},${to.y} ${to.x},${to.y}`);
+    arrowLayer.appendChild(line);
+  });
+}
+
+function handleConnectClick(id){
+  if(!state.connectFrom){
+    state.connectFrom=id;
+    document.getElementById('status').textContent='Now click the destination card';
+    canvas.querySelector(`[data-id="${id}"]`).style.borderStyle='dashed';
+  } else {
+    if(state.connectFrom!==id){
+      state.arrows.push({from:state.connectFrom,to:id});
+      saveHistory();updateArrows();
+    }
+    const prevEl=canvas.querySelector(`[data-id="${state.connectFrom}"]`);
+    if(prevEl)prevEl.style.borderStyle='';
+    state.connectFrom=null;
+    toggleConnectMode(false);
+  }
+}
+
+function toggleConnectMode(force){
+  state.connectMode=force!==undefined?force:!state.connectMode;
+  document.getElementById('btn-connect').classList.toggle('active-btn',state.connectMode);
+  document.getElementById('status').textContent=state.connectMode?'Click first card to connect…':'Scroll: pan up/down · Ctrl+Scroll: zoom · Space+drag: pan · Double-click: add card';
+  if(!state.connectMode&&state.connectFrom){
+    const el=canvas.querySelector(`[data-id="${state.connectFrom}"]`);
+    if(el)el.style.borderStyle='';
+    state.connectFrom=null;
+  }
+}
+
+function zoom(delta,cx,cy){
+  const factor=delta>0?0.85:1/0.85;
+  const nz=Math.min(Math.max(state.zoom*factor,0.15),4);
+  const wx=cx||wrap.clientWidth/2,wy=cy||wrap.clientHeight/2;
+  state.panX=(state.panX-wx)*nz/state.zoom+wx;
+  state.panY=(state.panY-wy)*nz/state.zoom+wy;
+  state.zoom=nz;
+  applyTransform();
+}
+
+function fitAll(){
+  if(!state.cards.length&&!(state.swimlanes||[]).length)return;
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  state.cards.forEach(c=>{minX=Math.min(minX,c.x);minY=Math.min(minY,c.y);maxX=Math.max(maxX,c.x+c.w);maxY=Math.max(maxY,c.y+120)});
+  (state.swimlanes||[]).forEach(sl=>{minX=Math.min(minX,sl.x);minY=Math.min(minY,sl.y);maxX=Math.max(maxX,sl.x+sl.w);maxY=Math.max(maxY,sl.y+sl.h)});
+  const pad=60,vw=wrap.clientWidth-pad*2,vh=wrap.clientHeight-pad*2;
+  const nz=Math.min(vw/(maxX-minX),vh/(maxY-minY),2);
+  state.zoom=nz;
+  state.panX=pad-minX*nz;state.panY=pad-minY*nz;
+  applyTransform();
+}
+
+function updateMinimap(){
+  const mc=document.getElementById('minimap-canvas');
+  const mw=mc.width=mc.offsetWidth*2,mh=mc.height=mc.offsetHeight*2;
+  mmCtx.clearRect(0,0,mw,mh);
+  if(!state.cards.length&&!(state.swimlanes||[]).length)return;
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  state.cards.forEach(c=>{minX=Math.min(minX,c.x);minY=Math.min(minY,c.y);maxX=Math.max(maxX,c.x+c.w);maxY=Math.max(maxY,c.y+120)});
+  (state.swimlanes||[]).forEach(sl=>{minX=Math.min(minX,sl.x);minY=Math.min(minY,sl.y);maxX=Math.max(maxX,sl.x+sl.w);maxY=Math.max(maxY,sl.y+(sl.h||400))});
+  const scale=Math.min(mw/(maxX-minX+80),mh/(maxY-minY+80));
+  const ox=40-minX*scale,oy=40-minY*scale;
+  state.cards.forEach(c=>{
+    const col=COLORS[c.color]||COLORS.default;
+    mmCtx.fillStyle=col.tagBg==='var(--bg)'?'#e0ddd6':col.tagBg;
+    mmCtx.fillRect(c.x*scale+ox,c.y*scale+oy,c.w*scale,100*scale);
+  });
+  (state.swimlanes||[]).forEach(sl=>{
+    mmCtx.fillStyle='rgba(235,10,30,0.15)';
+    mmCtx.fillRect(sl.x*scale+ox,sl.y*scale+oy,sl.w*scale,(sl.h||300)*scale);
+  });
+  const vp=document.getElementById('minimap-viewport');
+  const vx=(-state.panX/state.zoom)*scale+ox,vy=(-state.panY/state.zoom)*scale+oy;
+  const vw=(wrap.clientWidth/state.zoom)*scale,vh=(wrap.clientHeight/state.zoom)*scale;
+  vp.style.cssText=`left:${vx/2}px;top:${vy/2}px;width:${vw/2}px;height:${vh/2}px`;
+}
+
+/* ---- SEARCH ---- */
+const searchBox=document.getElementById('search-box');
+let searchTimeout=null;
+searchBox.addEventListener('input',()=>{
+  clearTimeout(searchTimeout);
+  searchTimeout=setTimeout(doSearch,200);
+});
+function doSearch(){
+  const q=searchBox.value.toLowerCase().trim();
+  canvas.querySelectorAll('.card').forEach(el=>{
+    el.classList.remove('search-hit');
+    if(q && (el.textContent.toLowerCase().includes(q))){
+      el.classList.add('search-hit');
+    }
+  });
+}
+
+/* ---- FILTER ---- */
+function buildFilterBar(){
+  const bar=document.getElementById('filter-bar');
+  bar.innerHTML='<span style="font-size:11px;font-weight:600;color:var(--text2);margin-right:4px">Filter by role:</span>';
+  Object.entries(COLORS).forEach(([key,col])=>{
+    const chip=document.createElement('button');
+    chip.className='filter-chip';
+    chip.innerHTML=`<span class="fc-dot" style="background:${col.tagBg==='var(--bg)'?'#e0ddd6':col.tagBg}"></span>${col.tag}`;
+    chip.addEventListener('click',()=>{
+      if(activeFilters.has(key)){activeFilters.delete(key);chip.classList.remove('active')}
+      else{activeFilters.add(key);chip.classList.add('active')}
+      applyFilters();
+    });
+    bar.appendChild(chip);
+  });
+  const clearBtn=document.createElement('button');
+  clearBtn.className='filter-chip';clearBtn.textContent='Clear all';
+  clearBtn.addEventListener('click',()=>{activeFilters.clear();bar.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));applyFilters()});
+  bar.appendChild(clearBtn);
+}
+function applyFilters(){
+  canvas.querySelectorAll('.card').forEach(el=>{
+    const id=el.dataset.id;
+    const c=state.cards.find(x=>x.id===id);
+    if(!c)return;
+    if(activeFilters.size===0){el.classList.remove('dimmed')}
+    else{el.classList.toggle('dimmed',!activeFilters.has(c.color))}
+  });
+}
+buildFilterBar();
+
+function toggleFilterBar(){
+  filterBarOpen=!filterBarOpen;
+  document.getElementById('filter-bar').classList.toggle('open',filterBarOpen);
+  document.getElementById('btn-filter').classList.toggle('active-btn',filterBarOpen);
+  applyTransform();
+}
+
+/* ---- WORKFLOW NAVIGATOR ---- */
+function buildWfNav(){
+  const nav=document.getElementById('wf-nav-inner');
+  nav.innerHTML='';
+  const title=document.createElement('div');title.className='wf-nav-title';title.textContent='Workflow Navigator';
+  nav.appendChild(title);
+
+  // Group cards by color=red (chapters/sections)
+  const chapters=state.cards.filter(c=>c.color==='red');
+  if(chapters.length){
+    const g=document.createElement('div');g.className='wf-nav-group';
+    const gt=document.createElement('div');gt.className='wf-nav-group-title';gt.textContent='Chapters';
+    g.appendChild(gt);
+    chapters.forEach(c=>{
+      const item=document.createElement('div');item.className='wf-nav-item';
+      item.innerHTML=`<span class="wf-dot" style="background:#EB0A1E"></span><span class="wf-label">${stripHtml(c.title)}</span>`;
+      item.addEventListener('click',()=>panToCard(c.id));
+      g.appendChild(item);
+    });
+    nav.appendChild(g);
+  }
+
+  // Swimlanes
+  if((state.swimlanes||[]).length){
+    const sep=document.createElement('div');sep.className='wf-nav-sep';nav.appendChild(sep);
+    const g=document.createElement('div');g.className='wf-nav-group';
+    const gt=document.createElement('div');gt.className='wf-nav-group-title';gt.textContent='Workflow Diagrams';
+    g.appendChild(gt);
+    state.swimlanes.forEach(sl=>{
+      const item=document.createElement('div');item.className='wf-nav-item';
+      item.innerHTML=`<span class="wf-dot" style="background:var(--blue)"></span><span class="wf-label">${sl.title}</span>`;
+      item.addEventListener('click',()=>panToSwimlane(sl.id));
+      g.appendChild(item);
+    });
+    nav.appendChild(g);
+  }
+
+  // Improvements
+  const improvements=state.cards.filter(c=>c.color==='warn');
+  if(improvements.length){
+    const sep=document.createElement('div');sep.className='wf-nav-sep';nav.appendChild(sep);
+    const g=document.createElement('div');g.className='wf-nav-group';
+    const gt=document.createElement('div');gt.className='wf-nav-group-title';gt.textContent='Improvements';
+    g.appendChild(gt);
+    improvements.forEach(c=>{
+      const item=document.createElement('div');item.className='wf-nav-item';
+      item.innerHTML=`<span class="wf-dot" style="background:#A32D2D"></span><span class="wf-label">${stripHtml(c.title)}</span>`;
+      item.addEventListener('click',()=>panToCard(c.id));
+      g.appendChild(item);
+    });
+    nav.appendChild(g);
+  }
+
+  // Stats
+  const sep2=document.createElement('div');sep2.className='wf-nav-sep';nav.appendChild(sep2);
+  const statsDiv=document.createElement('div');
+  statsDiv.style.cssText='font-size:11px;color:var(--text3);line-height:1.8';
+  statsDiv.innerHTML=`
+    <b style="color:var(--text)">Canvas stats</b><br>
+    Cards: ${state.cards.length}<br>
+    Arrows: ${state.arrows.length}<br>
+    Workflows: ${(state.swimlanes||[]).length}<br>
+    Chapters: ${chapters.length}<br>
+    Improvements: ${improvements.length}
+  `;
+  nav.appendChild(statsDiv);
+}
+
+function stripHtml(h){const d=document.createElement('div');d.innerHTML=h;return d.textContent||''}
+
+function panToCard(id){
+  const c=state.cards.find(x=>x.id===id);if(!c)return;
+  const cx=c.x+c.w/2, cy=c.y+60;
+  state.panX=wrap.clientWidth/2-cx*state.zoom;
+  state.panY=wrap.clientHeight/2-cy*state.zoom;
+  applyTransform();
+  selectCard(id,false);
+}
+
+function panToSwimlane(sid){
+  const sl=(state.swimlanes||[]).find(s=>s.id===sid);if(!sl)return;
+  const cx=sl.x+sl.w/2, cy=sl.y+(sl.h||300)/2;
+  state.zoom=0.5;
+  state.panX=wrap.clientWidth/2-cx*state.zoom;
+  state.panY=wrap.clientHeight/2-cy*state.zoom;
+  applyTransform();
+}
+
+function toggleWfNav(){
+  wfNavOpen=!wfNavOpen;
+  document.getElementById('wf-nav').classList.toggle('open',wfNavOpen);
+  document.getElementById('btn-workflows').classList.toggle('active-btn',wfNavOpen);
+  if(wfNavOpen)buildWfNav();
+}
+
+/* ---- EVENTS ---- */
+wrap.addEventListener('wheel',e=>{
+  e.preventDefault();
+  if(e.ctrlKey||e.metaKey){
+    // Ctrl+scroll = zoom
+    zoom(e.deltaY,e.clientX,e.clientY);
+  } else if(e.shiftKey){
+    // Shift+scroll = pan horizontally
+    state.panX-=e.deltaY;
+    applyTransform();
+  } else {
+    // Regular scroll = pan vertically (up/down navigation)
+    state.panY-=e.deltaY;
+    state.panX-=e.deltaX;
+    applyTransform();
+  }
+},{passive:false});
+
+wrap.addEventListener('mousedown',e=>{
+  if(e.button===1||(e.button===0&&spaceDn)){e.preventDefault();isPanning=true;panStart={x:e.clientX,y:e.clientY};panOrigin={x:state.panX,y:state.panY};wrap.style.cursor='grabbing'}
+});
+wrap.addEventListener('dblclick',e=>{
+  if(e.target!==wrap&&e.target!==canvas)return;
+  e.preventDefault();
+  pendingAddPos={x:e.clientX,y:e.clientY};
+  addMenu.style.cssText=`display:block;left:${e.clientX}px;top:${Math.min(e.clientY,window.innerHeight-320)}px`;
+});
+
+document.addEventListener('mousemove',e=>{
+  if(isPanning){state.panX=panOrigin.x+(e.clientX-panStart.x);state.panY=panOrigin.y+(e.clientY-panStart.y);applyTransform()}
+  if(dragCard){
+    const nx=e.clientX/state.zoom-dragOff.x,ny=e.clientY/state.zoom-dragOff.y;
+    dragCard.c.x=nx;dragCard.c.y=ny;
+    dragCard.el.style.left=nx+'px';dragCard.el.style.top=ny+'px';
+    updateArrows();
+  }
+  if(dragSwimlane){
+    const nx=e.clientX/state.zoom-slDragOff.x,ny=e.clientY/state.zoom-slDragOff.y;
+    dragSwimlane.x=nx;dragSwimlane.y=ny;
+    const el=canvas.querySelector(`[data-slid="${dragSwimlane.id}"]`);
+    if(el){el.style.left=nx+'px';el.style.top=ny+'px'}
+  }
+  if(resizingCard){
+    const dw=(e.clientX-resizeStart.mx)/state.zoom;
+    resizingCard.w=Math.max(160,resizeStart.w+dw);
+    const el=canvas.querySelector(`[data-id="${resizingCard.id}"]`);
+    if(el)el.style.width=resizingCard.w+'px';
+  }
+});
+
+document.addEventListener('mouseup',e=>{
+  if(e.button===1||(e.button===0&&spaceDn)){isPanning=false;wrap.style.cursor='default'}
+  if(dragCard&&dragOrigPos){saveHistory();dragCard=null}
+  if(dragSwimlane){saveHistory();dragSwimlane=null}
+  if(resizingCard){saveHistory();resizingCard=null}
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key===' '&&!e.target.isContentEditable){e.preventDefault();spaceDn=true;wrap.style.cursor='grab'}
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'){e.preventDefault();undo()}
+  if((e.key==='Delete'||e.key==='Backspace')&&state.selectedIds.length&&!e.target.isContentEditable){
+    state.selectedIds.forEach(id=>{if(id.startsWith('sl-'))deleteSwimlane(id);else deleteCard(id);});state.selectedIds=[];
+  }
+  if(e.key==='Escape'){deselectAll();toggleConnectMode(false);addMenu.style.display='none';exportMenu.style.display='none';document.getElementById('shortcuts-modal').classList.remove('show');searchBox.value='';doSearch()}
+  if(e.key==='/'&&!e.target.isContentEditable){e.preventDefault();searchBox.focus()}
+  if(e.key==='?'&&!e.target.isContentEditable){e.preventDefault();document.getElementById('shortcuts-modal').classList.toggle('show')}
+  if(e.key==='f'&&!e.target.isContentEditable&&!e.metaKey&&!e.ctrlKey){toggleFilterBar()}
+  if(e.key==='w'&&!e.target.isContentEditable&&!e.metaKey&&!e.ctrlKey){toggleWfNav()}
+  if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='F'){e.preventDefault();fitAll()}
+  if(e.key==='F11'){e.preventDefault();document.body.classList.toggle('fullscreen');applyTransform()}
+});
+document.addEventListener('keyup',e=>{if(e.key===' '){spaceDn=false;wrap.style.cursor='default'}});
+
+wrap.addEventListener('click',e=>{
+  if(e.target===wrap||e.target===canvas){deselectAll()}
+  addMenu.style.display='none';
+  exportMenu.style.display='none';
+});
+
+document.getElementById('btn-add').addEventListener('click',e=>{
+  pendingAddPos={x:wrap.clientWidth/2,y:wrap.clientHeight/2};
+  addMenu.style.cssText=`display:block;left:${e.clientX-90}px;top:${e.clientY+8}px`;
+});
+
+document.getElementById('btn-add-section').addEventListener('click',()=>{
+  const c=addCard(wrap.clientWidth/2-160,wrap.clientHeight/2-20,'red','New section','Add details here…');
+  canvas.querySelector(`[data-id="${c.id}"]`).querySelector('.card-title').focus();
+});
+
+document.getElementById('btn-connect').addEventListener('click',()=>toggleConnectMode());
+document.getElementById('btn-zoom-in').addEventListener('click',()=>zoom(-1));
+document.getElementById('btn-zoom-out').addEventListener('click',()=>zoom(1));
+document.getElementById('btn-fit').addEventListener('click',fitAll);
+document.getElementById('btn-filter').addEventListener('click',toggleFilterBar);
+document.getElementById('btn-workflows').addEventListener('click',toggleWfNav);
+document.getElementById('btn-fullscreen').addEventListener('click',()=>{document.body.classList.toggle('fullscreen');applyTransform()});
+document.getElementById('btn-shortcuts').addEventListener('click',()=>document.getElementById('shortcuts-modal').classList.toggle('show'));
+document.getElementById('btn-delete-selected').addEventListener('click',()=>{
+  state.selectedIds.forEach(id=>{if(id.startsWith('sl-'))deleteSwimlane(id);else deleteCard(id);});state.selectedIds=[];
+});
+
+addMenu.querySelectorAll('.menu-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    const pos=pendingAddPos||{x:wrap.clientWidth/2,y:wrap.clientHeight/2};
+    const c=addCard(pos.x,pos.y,item.dataset.color,'','');
+    addMenu.style.display='none';
+    setTimeout(()=>canvas.querySelector(`[data-id="${c.id}"]`).querySelector('.card-title').focus(),50);
+  });
+});
+
+/* ---- COLOR STRIP ---- */
+const strip=document.getElementById('color-strip');
+Object.entries(COLORS).forEach(([key,col])=>{
+  const d=document.createElement('div');
+  d.className='color-dot';d.title=col.tag;
+  d.style.background=col.tagBg==='var(--bg)'?'#e0ddd6':col.tagBg;
+  d.addEventListener('click',()=>{
+    activePaintColor=activePaintColor===key?null:key;
+    strip.querySelectorAll('.color-dot').forEach((x,i)=>x.classList.toggle('active',Object.keys(COLORS)[i]===activePaintColor));
+    if(activePaintColor)document.getElementById('status').textContent=`Paint mode: click a card to repaint it ${col.tag}`;
+    else document.getElementById('status').textContent='Scroll: pan up/down · Ctrl+Scroll: zoom · Space+drag: pan';
+  });
+  strip.appendChild(d);
+});
+
+canvas.addEventListener('click',e=>{
+  if(!activePaintColor)return;
+  const cardEl=e.target.closest('.card');
+  if(!cardEl)return;
+  const id=cardEl.dataset.id;
+  const c=state.cards.find(x=>x.id===id);if(!c)return;
+  c.color=activePaintColor;
+  const col=COLORS[activePaintColor];
+  cardEl.style.background=col.bg;cardEl.style.borderColor=col.border;
+  cardEl.querySelector('.card-tag').style.background=col.tagBg;
+  cardEl.querySelector('.card-tag').style.color=col.tagColor;
+  cardEl.querySelector('.card-tag').textContent=col.tag;
+  saveHistory();
+});
+
+/* ---- EXPORT ---- */
+document.getElementById('btn-export').addEventListener('click',e=>{
+  const rect=e.target.closest('.tb-btn').getBoundingClientRect();
+  exportMenu.style.cssText=`display:block;left:${rect.left}px;top:${rect.bottom+4}px`;
+});
+
+document.getElementById('export-png').addEventListener('click',()=>{exportMenu.style.display='none';exportAsPNG()});
+document.getElementById('export-svg').addEventListener('click',()=>{exportMenu.style.display='none';exportAsSVG()});
+document.getElementById('export-pdf').addEventListener('click',()=>{exportMenu.style.display='none';exportAsPDF()});
+document.getElementById('export-md').addEventListener('click',()=>{exportMenu.style.display='none';exportAsMarkdown()});
+
+function getCanvasBounds(){
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  state.cards.forEach(c=>{
+    minX=Math.min(minX,c.x);minY=Math.min(minY,c.y);
+    maxX=Math.max(maxX,c.x+c.w);maxY=Math.max(maxY,c.y+140);
+  });
+  (state.swimlanes||[]).forEach(sl=>{
+    minX=Math.min(minX,sl.x);minY=Math.min(minY,sl.y);
+    maxX=Math.max(maxX,sl.x+sl.w);maxY=Math.max(maxY,sl.y+(sl.h||400));
+  });
+  return {minX:minX-40,minY:minY-40,maxX:maxX+40,maxY:maxY+40};
+}
+
+function drawCanvasToOffscreen(){
+  const bounds=getCanvasBounds();
+  const w=bounds.maxX-bounds.minX, h=bounds.maxY-bounds.minY;
+  const scale=2;
+  const offCanvas=document.createElement('canvas');
+  offCanvas.width=w*scale;offCanvas.height=h*scale;
+  const ctx=offCanvas.getContext('2d');
+  ctx.scale(scale,scale);
+  ctx.fillStyle='#f5f4f0';ctx.fillRect(0,0,w,h);
+
+  // Render cards
+  state.cards.forEach(c=>{
+    const col=COLORS[c.color]||COLORS.default;
+    const x=c.x-bounds.minX, y=c.y-bounds.minY;
+    // Card bg
+    ctx.fillStyle=getComputedBg(col.bg);
+    ctx.strokeStyle=col.border;ctx.lineWidth=1.5;
+    roundRect(ctx,x,y,c.w,120,8);ctx.fill();ctx.stroke();
+    // Tag
+    ctx.fillStyle=getComputedBg(col.tagBg);
+    roundRect(ctx,x+8,y+8,40,16,3);ctx.fill();
+    ctx.fillStyle=getComputedBg(col.tagColor);ctx.font='bold 8px sans-serif';
+    ctx.fillText(col.tag.toUpperCase(),x+12,y+19);
+    // Title
+    ctx.fillStyle='#1a1a18';ctx.font='bold 11px sans-serif';
+    const titleText=stripHtml(c.title);
+    ctx.fillText(titleText.substring(0,35),x+54,y+20);
+    // Body
+    ctx.fillStyle='#5a5955';ctx.font='11px sans-serif';
+    const bodyText=stripHtml(c.body);
+    wrapText(ctx,bodyText,x+10,y+44,c.w-20,14,6);
+  });
+
+  // Render swimlanes
+  (state.swimlanes||[]).forEach(sl=>{
+    const x=sl.x-bounds.minX, y=sl.y-bounds.minY;
+    ctx.fillStyle='#ffffff';ctx.strokeStyle='#e0ddd6';ctx.lineWidth=1.5;
+    roundRect(ctx,x,y,sl.w,sl.h||400,8);ctx.fill();ctx.stroke();
+    // Header
+    ctx.fillStyle='#fde8ea';
+    roundRect(ctx,x,y,sl.w,30,8);ctx.fill();
+    ctx.fillStyle='#1a1a18';ctx.font='bold 11px sans-serif';
+    ctx.fillText(sl.title,x+10,y+20);
+    // Lanes
+    let ly=y+32;
+    sl.lanes.forEach((lane,i)=>{
+      const lh=50;
+      if(i%2===1){ctx.fillStyle='rgba(0,0,0,0.02)';ctx.fillRect(x,ly,sl.w,lh)}
+      ctx.fillStyle='#5a5955';ctx.font='bold 9px sans-serif';
+      ctx.fillText(lane.role,x+6,ly+28);
+      ctx.strokeStyle='#e0ddd6';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x+75,ly);ctx.lineTo(x+75,ly+lh);ctx.stroke();
+      // Steps
+      let sx=x+85;
+      lane.steps.forEach(step=>{
+        const sw=Math.min(120,Math.max(70,step.text.length*5.5+20));
+        ctx.fillStyle=step.type==='decision'?'#FAEEDA':step.type==='highlight'?'#E1F5EE':step.type==='warn'?'#FCEBEB':'#f5f4f0';
+        ctx.strokeStyle=step.type==='decision'?'#854F0B':step.type==='warn'?'#A32D2D':'#e0ddd6';
+        ctx.lineWidth=1;
+        roundRect(ctx,sx,ly+8,sw,lh-16,3);ctx.fill();ctx.stroke();
+        if(step.num){
+          ctx.fillStyle='#185FA5';ctx.beginPath();ctx.arc(sx-2,ly+12,7,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#fff';ctx.font='bold 7px sans-serif';ctx.fillText(step.num,sx-5,ly+15);
+        }
+        ctx.fillStyle='#5a5955';ctx.font='9px sans-serif';
+        wrapText(ctx,step.text,sx+4,ly+22,sw-8,11,3);
+        sx+=sw+12;
+      });
+      ctx.strokeStyle='#e0ddd6';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x,ly+lh);ctx.lineTo(x+sl.w,ly+lh);ctx.stroke();
+      ly+=lh;
+    });
+  });
+
+  return offCanvas;
+}
+
+function exportAsPNG(){
+  const offCanvas = drawCanvasToOffscreen();
+  offCanvas.toBlob(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='utrust_canvas.png';a.click();
+    URL.revokeObjectURL(url);
+  },'image/png');
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function wrapText(ctx,text,x,y,maxW,lineH,maxLines){
+  const words=text.split(' ');let line='';let ln=0;
+  for(const w of words){
+    const test=line+w+' ';
+    if(ctx.measureText(test).width>maxW&&line!==''){
+      ctx.fillText(line.trim(),x,y+ln*lineH);ln++;line=w+' ';
+      if(ln>=maxLines)return;
+    }else{line=test}
+  }
+  if(ln<maxLines)ctx.fillText(line.trim(),x,y+ln*lineH);
+}
+
+function getComputedBg(v){
+  const map={'var(--card)':'#ffffff','var(--bg)':'#f5f4f0','var(--border)':'#e0ddd6','var(--text)':'#1a1a18','var(--text2)':'#5a5955','var(--text3)':'#9a9892','var(--red-bg)':'#fde8ea','var(--blue)':'#185FA5','var(--blue-bg)':'#E6F1FB','var(--green)':'#0F6E56','var(--green-bg)':'#E1F5EE','var(--amber)':'#854F0B','var(--amber-bg)':'#FAEEDA','var(--purple)':'#534AB7','var(--purple-bg)':'#EEEDFE','var(--pink)':'#993556','var(--pink-bg)':'#FBEAF0','var(--teal)':'#1D9E75','var(--teal-bg)':'#E1F5EE','var(--warn-bg)':'#FCEBEB'};
+  return map[v]||v;
+}
+
+function exportAsSVG(){
+  const bounds=getCanvasBounds();
+  const w=bounds.maxX-bounds.minX, h=bounds.maxY-bounds.minY;
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+  svg+=`<rect width="${w}" height="${h}" fill="#f5f4f0"/>`;
+  state.cards.forEach(c=>{
+    const col=COLORS[c.color]||COLORS.default;
+    const x=c.x-bounds.minX, y=c.y-bounds.minY;
+    svg+=`<rect x="${x}" y="${y}" width="${c.w}" height="120" rx="8" fill="${getComputedBg(col.bg)}" stroke="${col.border}" stroke-width="1.5"/>`;
+    svg+=`<text x="${x+10}" y="${y+18}" font-size="10" font-weight="bold" fill="#1a1a18">${escSvg(stripHtml(c.title).substring(0,40))}</text>`;
+    svg+=`<text x="${x+10}" y="${y+40}" font-size="9" fill="#5a5955">${escSvg(stripHtml(c.body).substring(0,80))}</text>`;
+  });
+  (state.swimlanes||[]).forEach(sl=>{
+    const x=sl.x-bounds.minX, y=sl.y-bounds.minY;
+    svg+=`<rect x="${x}" y="${y}" width="${sl.w}" height="${sl.h||400}" rx="8" fill="#fff" stroke="#e0ddd6" stroke-width="1.5"/>`;
+    svg+=`<rect x="${x}" y="${y}" width="${sl.w}" height="28" rx="8" fill="#fde8ea"/>`;
+    svg+=`<text x="${x+10}" y="${y+19}" font-size="11" font-weight="bold" fill="#1a1a18">${escSvg(sl.title)}</text>`;
+  });
+  svg+=`</svg>`;
+  const blob=new Blob([svg],{type:'image/svg+xml'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='utrust_canvas.svg';a.click();
+}
+
+function escSvg(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function exportAsPDF(){
+  const offCanvas = drawCanvasToOffscreen();
+  const printWin = window.open('','_blank');
+  let html=`<html><head><title>UTrust Canvas PDF Export</title><style>
+    @media print {
+      @page { margin: 0; size: auto; }
+      body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+    body { margin: 0; padding: 20px; background: #333; text-align: center; }
+    canvas { max-width: 100%; height: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  </style></head><body>
+  </body></html>`;
+  printWin.document.write(html);
+  printWin.document.close();
+  printWin.document.body.appendChild(offCanvas);
+  setTimeout(()=>printWin.print(), 500);
+}
+
+function exportAsMarkdown(){
+  let md=`# UTrust Toyota U-Car Procurement Canvas\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
+
+  state.cards.forEach(c=>{
+    const col=COLORS[c.color]||COLORS.default;
+    md+=`## [${col.tag.toUpperCase()}] ${stripHtml(c.title)}\n\n${stripHtml(c.body)}\n\n---\n\n`;
+  });
+
+  (state.swimlanes||[]).forEach(sl=>{
+    md+=`## Workflow: ${sl.title}\n\n`;
+    sl.lanes.forEach(lane=>{
+      md+=`### ${lane.role}\n\n`;
+      lane.steps.forEach((step,i)=>{
+        md+=`${step.num?step.num+'. ':'- '}${step.text}\n`;
+      });
+      md+=`\n`;
+    });
+    md+=`---\n\n`;
+  });
+
+  const blob=new Blob([md],{type:'text/markdown'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='utrust_canvas.md';a.click();
+}
+
+/* ---- SAVE / LOAD ---- */
+document.getElementById('btn-save-html').addEventListener('click', () => {
+  syncDOMToState();
+  const clone = document.documentElement.cloneNode(true);
+  
+  // Clean dynamic content from canvas, arrows, and modals
+  const canvasEl = clone.querySelector('#canvas');
+  if(canvasEl) canvasEl.innerHTML = '';
+  const arrowEl = clone.querySelector('#arrow-layer');
+  if(arrowEl) arrowEl.innerHTML = '';
+  const navEl = clone.querySelector('#wf-nav');
+  if(navEl) navEl.innerHTML = '';
+  const modalEl = clone.querySelector('#shortcuts-modal');
+  if(modalEl) modalEl.classList.remove('show');
+  
+  // Inject the current state into a script tag so it survives file download
+  let stateScript = clone.querySelector('#saved-state');
+  if(!stateScript){
+    stateScript = document.createElement('script');
+    stateScript.id = 'saved-state';
+    clone.querySelector('body').appendChild(stateScript);
+  }
+  
+  const data = JSON.stringify({
+    cards: state.cards, arrows: state.arrows, swimlanes: state.swimlanes,
+    zoom: state.zoom, panX: state.panX, panY: state.panY, nextId: state.nextId
+  });
+  
+  stateScript.textContent = `window.__SAVED_STATE__ = ${data};`;
+  
+  const htmlStr = '<!DOCTYPE html>\\n<html>\\n' + clone.innerHTML + '\\n</html>';
+  const blob = new Blob([htmlStr], {type: 'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'utrust_canvas_saved.html';
+  a.click();
+});
+
+document.getElementById('btn-save').addEventListener('click',()=>{
+  syncDOMToState();
+  const data=JSON.stringify({cards:state.cards,arrows:state.arrows,swimlanes:state.swimlanes,zoom:state.zoom,panX:state.panX,panY:state.panY,nextId:state.nextId},null,2);
+  const a=document.createElement('a');a.href='data:text/json;charset=utf-8,'+encodeURIComponent(data);
+  a.download='utrust_canvas.json';a.click();
+});
+
+document.getElementById('btn-load').addEventListener('click',()=>document.getElementById('file-input').click());
+document.getElementById('file-input').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      state.cards=d.cards||[];state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
+      state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
+      state.nextId=d.nextId||1;state.selectedIds=[];state.history=[];state.histIdx=-1;
+      rebuildDOM();applyTransform();saveHistory();
+    }catch(err){alert('Invalid JSON file')}
+  };r.readAsText(f);
+  e.target.value='';
+});
+
+/* ---- INITIAL CONTENT ---- */
+function getDefaultData(){
+  const data={
+    nextId:300,zoom:0.55,panX:20,panY:20,
+    arrows:[
+      {from:'c1',to:'c10'},{from:'c10',to:'c20'},{from:'c20',to:'c30'},
+      {from:'c30',to:'c40'},{from:'c40',to:'c50'},{from:'c50',to:'c60'},{from:'c60',to:'c70'}
+    ],
+    cards:[
+      {id:'c1',x:60,y:60,w:320,color:'red',title:'UTrust Toyota U-Car Procurement',body:'<b>R&D Research Canvas</b><br>Full ops map: Seller Enquiry → Valuation → Inspection → Sorting → Pricing → Negotiation → Procurement → Delivery<br><br>Double-click blank area to add cards. Drag cards to move. Use toolbar to connect, save, and load.'},
+
+      {id:'c5',x:460,y:60,w:260,color:'default',title:'Role legend',body:'<b style="color:#185FA5">PO</b> Procurement Officer / Valuator<br><b style="color:#0F6E56">SO</b> Sales Officer<br><b style="color:#854F0B">PTL / TL</b> Team Leader<br><b style="color:#534AB7">PI</b> Procurement In-Charge<br><b style="color:#993556">Customer</b> Seller / Buyer<br><b style="color:#1D9E75">CTDMS</b> CRM/DMS system'},
+
+      {id:'c10',x:60,y:220,w:300,color:'red',title:'Chapter 1 Seller enquiry & trade-in',body:'Retain existing Toyota customers. Maximise trade-in opportunities from N-Car walk-ins and field visits.'},
+      {id:'c11',x:380,y:220,w:260,color:'green',title:'SO Nth Day (walk-in)',body:'Meets customer. Collects basic info. Checks CTDMS. Introduces valuator. Conducts NABing using Enquiry Card. Registers enquiry in CTDMS before 1 PM.'},
+      {id:'c12',x:660,y:220,w:260,color:'blue',title:'PO Nth Day',body:'Checks U-Trust website & CTDMS. Receives enquiry. Meets customer. Explains valuation process & requirements. Enables enquiry in CTDMS.'},
+      {id:'c13',x:940,y:220,w:260,color:'amber',title:'PTL Nth Day',body:'Reviews CTDMS daily morning. Checks unallocated enquiries. Conducts morning meeting with POs. Follow-up plan via actual report.'},
+      {id:'c14',x:1220,y:220,w:240,color:'warn',title:'Improvement: CTDMS 1PM rule',body:'All enquiries must be entered before 1 PM same day. Currently manual discipline should be system-enforced with PTL alert if entries are missing.'},
+
+      {id:'c20',x:60,y:480,w:300,color:'red',title:'Chapter 2 Inspection',body:'Fair & transparent process. Assessment → accuracy → basis of inspection for negotiation. Training of PO can be done online.'},
+      {id:'c21',x:380,y:480,w:260,color:'blue',title:'PO Inspection steps',body:'① Introduction to customer<br>② Detailed inspection using Tool (Checklist)<br>③ Bring checklist outcome<br>④ Decisions based on results'},
+      {id:'c22',x:660,y:480,w:260,color:'teal',title:'S1 → S2 → S3 sorting stages',body:'S1: Inspection by PO<br>S2: Sorting define quality, verify criteria, confirm sort<br>S3: Certification Certified (L4-5) / Non-Certified (L1-3) / Wonders'},
+      {id:'c23',x:940,y:480,w:240,color:'warn',title:'Improvement: Digitalise checklist',body:'Inspection checklist currently physical. Candidate for online completion with auto-scoring for S2 sorting. PO training can be online too.'},
+
+      {id:'c30',x:60,y:720,w:300,color:'red',title:'Chapter 3 Pricing',body:'Offer best price for current Toyota car in market. High sense of assurance → high customer satisfaction.'},
+      {id:'c31',x:380,y:720,w:260,color:'purple',title:'PI Price grid creation',body:'Creates purchasing price grid. Based on customer & instrument parameters. Can be created any service date and billing date. Determines depreciation patterns for all Toyota models.'},
+      {id:'c32',x:660,y:720,w:260,color:'amber',title:'PTL Price grid review',body:'Continuously checks purchasing price grid. Approves model price grid before release. Monthly update based on actual transaction values.'},
+      {id:'c33',x:940,y:720,w:260,color:'blue',title:'PO Price grid usage',body:'Uses price grid during negotiation. Re-explains proposed price with transparency. References market data and depreciation.'},
+      {id:'c34',x:1220,y:720,w:240,color:'warn',title:'Improvement: Price grid automation',body:'Notes say "currency can be automated." Monthly process candidate for automation with market price feed or depreciation algorithm. Team flagged: price grid may no longer be in active use needs confirmation.'},
+
+      {id:'c40',x:60,y:960,w:300,color:'red',title:'Chapter 4 Negotiation',body:'Build fair & transparent process through reliable explanation. Bridge gap between customer expected price and our price.'},
+      {id:'c41',x:380,y:960,w:260,color:'blue',title:'PO 3-step negotiation',body:'① Confirm intention to sell ("Sell here? S-now?")<br>② Confirm expected price (S-now?)<br>③ Trade on spot & off-spot → Confirmation'},
+      {id:'c42',x:660,y:960,w:260,color:'green',title:'SO Case 1D (price disagreement)',body:'Re-proposes price in consultation with PO. Visits customer along with PO if decision not made in next 2 follow-ups. Updates CTDMS after every interaction.'},
+      {id:'c43',x:940,y:960,w:260,color:'amber',title:'TL Disagreement handling',body:'Notes reason of disagreement. Discusses in daily review meeting. Suggests next action. Updates P-TL in daily review.'},
+      {id:'c44',x:1220,y:960,w:240,color:'warn',title:'Improvement: N-Car ↔ U-Car link',body:'Strong mechanism needed for close correlation between N-Car and U-Car operations. Case 1E and Case 3 show handoff gaps customer lead can be lost between teams.'},
+
+      {id:'c50',x:60,y:1200,w:300,color:'red',title:'Chapter 5 Follow-up',body:'Provide high CS by replying all customer queries on time. Increase opportunities for purchasing. CTDMS real-time updates.'},
+      {id:'c51',x:380,y:1200,w:260,color:'green',title:'SO Follow-up types',body:'After 1st meet → same day<br>Encourage group → 3-5 days after<br>Continuing follow-up → Secure opportunity<br>Break monthly targets into daily & weekly.'},
+      {id:'c52',x:660,y:1200,w:260,color:'blue',title:'PO → PTL → PI daily cycle',body:'PO → PTL: Reviews car, next actions<br>PTL → PI: Guides follow-up calls<br>Process: ① CTDMS updates ② Daily Meeting ③ Follow-up activity (3 PO/PTL)'},
+      {id:'c53',x:940,y:1200,w:260,color:'teal',title:'CTDMS daily follow-up report',body:'Auto-generated daily morning (currently manual). PO makes follow-up plan. If enquiry dropped → update reason in CTDMS. Two reviews per day: morning + evening.'},
+      {id:'c54',x:1220,y:1200,w:240,color:'warn',title:'Improvement: Mobile CTDMS logging',body:'Mobile-first CTDMS form for quick post-call logging. Daily Follow-up Report can be auto-generated from activity logs and pushed to PO dashboards.'},
+
+      {id:'c60',x:60,y:1440,w:300,color:'red',title:'Chapter 6 Purchasing / Delivery',body:'Transparent & fair process. High customer satisfaction. Build U-Car brand trust. Generate Trust with the customer.'},
+      {id:'c61',x:380,y:1440,w:260,color:'green',title:'SO Contract & delivery',body:'① Contract: check loan / price, explain license terms, payment from U-Trust<br>② Car delivery: reminder of items, receive all documents<br>③ Follow-up after purchase'},
+      {id:'c62',x:660,y:1440,w:260,color:'blue',title:'PO Procurement process',body:'Enter tender purchase detail in CTDMS. Check payment & delivery checklist. Forward acceptance to U-Car GM. Check vehicle & original documents. Coordinate with finance company.'},
+      {id:'c63',x:940,y:1440,w:260,color:'pink',title:'Customer post-purchase follow-up',body:'1st follow-up within 45 days.<br>Next → every 3 months (ask for referrals).<br>Invite to U-Car and N-Car events.<br>Home delivery: both PO + SO present.'},
+      {id:'c64',x:1220,y:1440,w:240,color:'warn',title:'Improvement: Document digitalisation',body:'Purchase involves multiple doc transfers (originals, NOC, finance forms). Digital document management with e-signature could eliminate paper handling & relay steps.'},
+
+      {id:'c70',x:60,y:1680,w:300,color:'red',title:'Chapter 7 Sorting',body:'Maximise retail of Toyota vehicles. Opportunity to increase customer base and N-Car share. Correctly identify vehicles for retail vs wholesale.'},
+      {id:'c71',x:380,y:1680,w:260,color:'amber',title:'Sorting decision (3 paths)',body:'Certified → Refurbish + Warranty, Level 4-5<br>Non-Certified → Refurbish, No Warranty, Level 1-3<br>Wonders → Not refurbished, other brands'},
+      {id:'c72',x:660,y:1680,w:260,color:'blue',title:'Overall process flow (S1-S3)',body:'S1: Inspection (PO runs full check)<br>S2: Sorting (quality level, criteria check, customer sort)<br>S3: Certification (path decision, buyer enquiry card, inspection sheet)'},
+      {id:'c73',x:940,y:1680,w:260,color:'purple',title:'Retail vs wholesale aim',body:'Correctly identify each vehicle\'s path. PCL View → Finance Agreement. Certified target: improve N-Car share. Wonders: non-refurbished or other brands sold wholesale.'},
+
+      {id:'c80',x:60,y:1920,w:300,color:'red',title:'Walk-in cases (1A-1E)',body:'5 sub-cases for N-Car showroom walk-in. Maps swimlane steps across Customer, LIC, SO, TL, PO, Procurement TL roles.'},
+      {id:'c81',x:380,y:1920,w:260,color:'pink',title:'Case 1A No exchange',body:'Customer owns car but doesn\'t want to exchange. SO pursues opportunity, introduces valuator in background. Valuation done separately.'},
+      {id:'c82',x:660,y:1920,w:260,color:'green',title:'Case 1B Wants exchange, car available',body:'Full swimlane through Procurement TL, TL, SO, LIC, Customer. Standard valuation → negotiation → procurement path.'},
+      {id:'c83',x:940,y:1920,w:260,color:'amber',title:'Case 1C No valuator available',body:'SO confirms availability for another time. Valuator confirms time. Customer confirms time. SO follows Case 1 step 11 or Case B step YY.\n\n⚠ Improvement: scheduling system + backup evaluator pool (10+).'},
+      {id:'c84',x:1220,y:1920,w:260,color:'warn',title:'Case 1D Price disagreement',body:'PO re-explains. Offers spot pricing. SO re-proposes in consultation with PO. SO + PO visit customer if not decided in 2 follow-ups. TL documents reason and suggests next action.'},
+      {id:'c85',x:1500,y:1920,w:260,color:'purple',title:'Case 1E N-Car rejected',body:'Lead handed to U-Car retail team. SO confirms reason. TL visits customer with SO. R-TL forwards to retail exec. Retail exec follows up. Prevents total customer loss.'},
+
+      {id:'c90',x:60,y:2160,w:300,color:'red',title:'KPIs Toyota vehicles (14 KPIs)',body:'Sourced from printed "Detailed KPIs" document. Covers total replacement potential, retention, purchase ratios, certification, margin, and conquest rate.'},
+      {id:'c91',x:380,y:2160,w:320,color:'blue',title:'Top 5 KPIs to watch',body:'① Total Toyota Replacement Potential (sold 5yr ago ÷ 12)<br>② Total Toyota Retained in Service<br>③ Total Toyota Trade-in to N-Car<br>④ Average Margin per Car (target: same as N-Car, max +10%)<br>⑤ Average Inventory Turnover Day (target: 15 days)'},
+      {id:'c92',x:720,y:2160,w:320,color:'warn',title:'Tech injection opportunities (summary)',body:'1. CTDMS 1PM enforcement<br>2. Price grid automation (currency feed)<br>3. Inspection checklist digitalisation<br>4. N-Car ↔ U-Car handoff system<br>5. Mobile post-call logging<br>6. Document e-signature relay<br>7. Scheduling system for valuators<br>8. Daily follow-up report auto-generation<br>9. Online PO training (LMS)<br>10. Valuation transparency screen for customers'},
+
+      // Cross-reference cards linking chapters to workflows
+      {id:'c95',x:1100,y:2160,w:280,color:'teal',title:'Workflow ↔ Chapter cross-reference',body:'Case 1A/1B → Ch.1 (Enquiry) + Ch.2 (Inspection)<br>Case 1C → Ch.1 (Scheduling gap)<br>Case 1D → Ch.3 (Pricing) + Ch.4 (Negotiation)<br>Case 1E → Ch.4 (N-Car ↔ U-Car handoff)<br>Case 2 → Ch.1 (Field variant)<br>Case 3 → Ch.5 (Follow-up) + Ch.6 (Delivery)'},
+
+      {id:'c96',x:1400,y:2160,w:280,color:'default',title:'Handoff risk map',body:'<b>High risk</b>: N-Car → U-Car lead transfer (Case 1E)<br><b>Medium risk</b>: SO → PO valuation handoff (Case 1C)<br><b>Medium risk</b>: Long wait → customer sells elsewhere (Case 3B)<br><b>Low risk</b>: Follow-up decay after 45 days<br><br>Each gap maps to a tech injection point in c92.'},
+
+      {id:'c97',x:60,y:2400,w:300,color:'red',title:'Process timing benchmarks',body:'Walk-in to enquiry: same day (1PM cut-off)<br>Enquiry to inspection: 1-2 days<br>Inspection to price quote: same day<br>Negotiation cycle: 2-5 follow-ups<br>Purchase to delivery: 3-7 days<br>Post-delivery follow-up: 45 days, then 3-month intervals'},
+
+      {id:'c98',x:380,y:2400,w:280,color:'green',title:'SO daily schedule template',body:'Morning: CTDMS review + PTL meeting<br>10-12: Walk-in customer handling<br>12-1PM: CTDMS data entry (deadline)<br>1-3PM: Scheduled appointments / field visits<br>3-5PM: Follow-up calls + activity logging<br>5PM: Evening review with TL'},
+
+      {id:'c99',x:680,y:2400,w:280,color:'blue',title:'PO daily schedule template',body:'Morning: U-Trust website check + CTDMS<br>Morning meeting with PTL<br>Inspection appointments<br>Price grid reference for active cases<br>Negotiation sessions<br>CTDMS updates + tender entries<br>Evening: follow-up plan for next day'},
+    ],
+
+    /* ---- SWIMLANE WORKFLOW DIAGRAMS ---- */
+    swimlanes:[
+      // Case 1A: Customer has car, no exchange intent
+      {
+        id:'sl-1a', x:60, y:2650, w:1100, h:420,
+        title:'Case 1A Walk-in: Customer has car, does not want exchange',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer arrives at N-Car showroom',type:'normal'},
+            {num:'',text:'Mentions owning a car',type:'normal'},
+          ]},
+          {role:'LC', steps:[
+            {num:'1',text:'Greets customer',type:'normal'},
+            {num:'',text:'Identifies car ownership',type:'normal'},
+          ]},
+          {role:'SO (N-Car)', steps:[
+            {num:'2',text:'Meets customer for N-Car',type:'normal'},
+            {num:'3',text:'SO explores exchange opportunity with customer',type:'normal'},
+            {num:'4',text:'Customer declines exchange',type:'highlight'},
+            {num:'5',text:'SO introduces valuator in background',type:'normal'},
+            {num:'6',text:'SO proceeds with N-Car sale process',type:'normal'},
+          ]},
+          {role:'TL', steps:[
+            {num:'',text:'Monitors SO approach to exchange suggestion',type:'normal'},
+          ]},
+          {role:'Valuator (PO)', steps:[
+            {num:'7',text:'PO does background valuation',type:'normal'},
+            {num:'8',text:'Valuation stored for future reference',type:'normal'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'9',text:'SO registers enquiry before 1PM',type:'highlight'},
+            {num:'10',text:'Background valuation logged in system',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Case 1B: Wants exchange, car available
+      {
+        id:'sl-1b', x:1250, y:2650, w:1200, h:500,
+        title:'Case 1B Walk-in: Customer wants exchange, vehicle available at showroom',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer arrives',type:'normal'},
+            {num:'',text:'Wants to exchange',type:'highlight'},
+            {num:'',text:'Brings car for inspection',type:'normal'},
+          ]},
+          {role:'LC', steps:[
+            {num:'1',text:'Greets and identifies exchange intent',type:'normal'},
+            {num:'2',text:'Informs SO of exchange opportunity',type:'normal'},
+          ]},
+          {role:'SO (N-Car)', steps:[
+            {num:'3',text:'Confirms customer appointment',type:'normal'},
+            {num:'4',text:'Checks valuator availability',type:'normal'},
+            {num:'5',text:'Introduces valuator to customer',type:'normal'},
+            {num:'6',text:'Conducts NABing using Enquiry Card',type:'normal'},
+            {num:'7',text:'Registers enquiry in CTDMS',type:'highlight'},
+          ]},
+          {role:'TL', steps:[
+            {num:'',text:'Reviews in daily meeting',type:'normal'},
+          ]},
+          {role:'Valuator (PO)', steps:[
+            {num:'8',text:'Checks U-Trust website & CTDMS',type:'normal'},
+            {num:'9',text:'Meets customer, explains valuation',type:'normal'},
+            {num:'10',text:'Conducts detailed inspection',type:'normal'},
+            {num:'11',text:'Provides price quote',type:'highlight'},
+          ]},
+          {role:'Procurement TL', steps:[
+            {num:'12',text:'Reviews CTDMS morning report',type:'normal'},
+            {num:'13',text:'Assigns PO to enquiry',type:'normal'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'',text:'Enquiry logged before 1PM',type:'highlight'},
+            {num:'',text:'Valuation details recorded',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Case 1C: Customer interested for exchange but valuator not available
+      {
+        id:'sl-1c', x:60, y:3200, w:1100, h:420,
+        title:'Case 1C Customer interested in exchange, valuator not available at time of discussion',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer confirms time for valuation',type:'normal'},
+          ]},
+          {role:'LC', steps:[
+            {num:'1',text:'Identifies exchange intent',type:'normal'},
+          ]},
+          {role:'SO (N-Car)', steps:[
+            {num:'2',text:'Checks valuator availability',type:'normal'},
+            {num:'3',text:'Confirms the time with customer',type:'normal'},
+            {num:'4',text:'SO to follow step 11 of Case 1 or step YY of Case B',type:'highlight'},
+          ]},
+          {role:'TL', steps:[
+            {num:'',text:'Monitors scheduling',type:'normal'},
+          ]},
+          {role:'Valuator (PO)', steps:[
+            {num:'5',text:'Valuator confirms the time',type:'decision'},
+          ]},
+          {role:'U-Car', steps:[
+            {num:'',text:'(No action at this stage)',type:'normal'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'6',text:'Appointment scheduled in system',type:'highlight'},
+          ]},
+        ]
+      },
+
+      // Case 1D: Customer disagrees with first price proposal
+      {
+        id:'sl-1d', x:1250, y:3200, w:1400, h:520,
+        title:'Case 1D Customer disagrees with the first price proposal',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer rejects initial price',type:'warn'},
+            {num:'',text:'Customer agrees (if resolved)',type:'highlight'},
+          ]},
+          {role:'LC', steps:[
+            {num:'',text:'(Monitors interaction)',type:'normal'},
+          ]},
+          {role:'HC', steps:[
+            {num:'',text:'(Escalation support if needed)',type:'normal'},
+          ]},
+          {role:'SO', steps:[
+            {num:'5',text:'Note the reason for disagreement',type:'normal'},
+            {num:'9',text:'Discuss the report with TL in daily review meeting',type:'normal'},
+          ]},
+          {role:'PO', steps:[
+            {num:'1',text:'PO to understand customer\'s expectation/preference',type:'normal'},
+            {num:'2',text:'PO has spot pricing or off-spot pricing',type:'normal'},
+            {num:'3',text:'Propose negotiated price to customer',type:'normal'},
+            {num:'4',text:'If not decided: SO + PO visit customer',type:'normal'},
+            {num:'6',text:'SO re-proposes price in consultation with PO',type:'highlight'},
+            {num:'7',text:'SO visit customer along with PO if decision not made in next 2 follow-ups',type:'warn'},
+          ]},
+          {role:'TL', steps:[
+            {num:'8',text:'Notes reason of disagreement',type:'normal'},
+            {num:'10',text:'TL to suggest next action if any',type:'normal'},
+          ]},
+          {role:'Procurement TL', steps:[
+            {num:'',text:'Reviews pricing in CTDMS',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Case 1E: Customer disagrees with N-car purchase
+      {
+        id:'sl-1e', x:60, y:3750, w:1200, h:460,
+        title:'Case 1E Customer disagrees with N-Car purchase',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer rejects N-Car',type:'warn'},
+            {num:'',text:'Customer agrees (after follow-up)',type:'highlight'},
+          ]},
+          {role:'LC', steps:[
+            {num:'',text:'(Monitors)',type:'normal'},
+          ]},
+          {role:'SO (N-Car)', steps:[
+            {num:'1',text:'SO confirms the reason for not buying N-Car',type:'normal'},
+            {num:'2',text:'Discuss with TL about the only reason for refusal',type:'normal'},
+            {num:'',text:'SO to follow step 3B of Case 1 or step yy of Case 2',type:'highlight'},
+            {num:'10',text:'SO update customer\'s comment in total system status',type:'normal'},
+          ]},
+          {role:'TL', steps:[
+            {num:'3',text:'TL to visit customer along with SO to pursue customer',type:'normal'},
+            {num:'4',text:'TL on forward found to car retail team review',type:'normal'},
+            {num:'9',text:'TL discuss with SO in daily review meeting',type:'normal'},
+          ]},
+          {role:'Retail Executive', steps:[
+            {num:'6',text:'Relay executive to be dispatched to customer / C-area visits',type:'normal'},
+            {num:'7',text:'Note the customer for disagreement',type:'normal'},
+            {num:'',text:'Update N-TL in daily meeting',type:'normal'},
+          ]},
+          {role:'Retail TL (R-TL)', steps:[
+            {num:'5',text:'R-TL forward the lead to retail executive with a lead',type:'normal'},
+            {num:'8',text:'TL update in car TL customer\'s comment',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Case 2: Field Customer (Meeting in Customer's Place)
+      {
+        id:'sl-2', x:1350, y:3750, w:1300, h:560,
+        title:'Case 2 Field Customer (Meeting in Customer\'s Place)',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer wants exchange?',type:'decision'},
+            {num:'',text:'N → No exchange path',type:'normal'},
+            {num:'',text:'Y → Exchange path',type:'highlight'},
+          ]},
+          {role:'LC', steps:[
+            {num:'',text:'(Field visit coordination)',type:'normal'},
+          ]},
+          {role:'SO (N-Car)', steps:[
+            {num:'1',text:'SO confirms customer\'s appointment',type:'normal'},
+            {num:'2',text:'SO explores exchange opportunity with customer',type:'normal'},
+            {num:'3',text:'SO to follow Step 1 of Case 1A',type:'normal'},
+            {num:'4',text:'SO confirms the valuator\'s availability',type:'normal'},
+            {num:'5',text:'SO to reconfirm customer\'s time and vehicle availability',type:'normal'},
+            {num:'7',text:'SO introduces valuator',type:'normal'},
+            {num:'8',text:'SO conducts used car NABing by using enquiry card',type:'highlight'},
+          ]},
+          {role:'TL', steps:[
+            {num:'',text:'SO to follow Step 1 of Case 1C',type:'normal'},
+          ]},
+          {role:'SM', steps:[
+            {num:'',text:'(Oversight for field operations)',type:'normal'},
+          ]},
+          {role:'Valuator (PO)', steps:[
+            {num:'',text:'Valuator available?',type:'decision'},
+            {num:'6',text:'SO and Valuator visit customer',type:'normal'},
+            {num:'',text:'Valuator to follow Step 11 of Case 1',type:'highlight'},
+          ]},
+          {role:'U-Car', steps:[
+            {num:'',text:'(Post-valuation processing)',type:'normal'},
+          ]},
+          {role:'Procurement TL', steps:[
+            {num:'',text:'(CTDMS assignment)',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Case 3: Long waiting time with new car
+      {
+        id:'sl-3', x:60, y:4350, w:1500, h:480,
+        title:'Case 3 Long waiting time with new car',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer waiting for N-Car delivery',type:'normal'},
+            {num:'',text:'Long wait situation identified',type:'warn'},
+          ]},
+          {role:'SO', steps:[
+            {num:'1',text:'SO informs customer about waiting period',type:'normal'},
+            {num:'2',text:'SO discusses the exchange opportunity',type:'normal'},
+            {num:'3',text:'SO to follow step from Case 1 or Case 2',type:'normal'},
+            {num:'5',text:'SO provides delivery timeline updates',type:'normal'},
+            {num:'8',text:'SO creates engagement touchpoints during wait',type:'highlight'},
+          ]},
+          {role:'TL', steps:[
+            {num:'',text:'Reviews long-wait cases in daily meeting',type:'normal'},
+          ]},
+          {role:'PO', steps:[
+            {num:'4',text:'PO stands by for valuation when customer ready',type:'normal'},
+            {num:'6',text:'SO to confirm with PO on valuation timeline',type:'normal'},
+          ]},
+          {role:'SM', steps:[
+            {num:'',text:'Tracks booking-to-delivery pipeline',type:'normal'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'7',text:'SO creates exchange lead in booking system',type:'highlight'},
+            {num:'',text:'Booking-to-delivery timeline tracked',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Sub Case 3A: Customer does not want detail valuation
+      {
+        id:'sl-3a', x:60, y:4900, w:1100, h:400,
+        title:'Sub Case 3A Customer does not want detailed valuation',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer interested in exchange',type:'normal'},
+            {num:'',text:'Declines detailed valuation',type:'warn'},
+          ]},
+          {role:'SO', steps:[
+            {num:'1',text:'SO confirms customer\'s exchange interest',type:'normal'},
+            {num:'2',text:'SO explains the valuation benefits',type:'normal'},
+            {num:'3',text:'SO requests basic car details from customer',type:'normal'},
+            {num:'4',text:'SO provides rough estimate based on price grid',type:'highlight'},
+            {num:'',text:'SO to follow up when customer ready for full valuation',type:'normal'},
+          ]},
+          {role:'PO', steps:[
+            {num:'5',text:'PO provides desk-based estimate',type:'normal'},
+            {num:'6',text:'PO records estimate in CTDMS',type:'normal'},
+          ]},
+          {role:'TL', steps:[
+            {num:'',text:'Reviews case in daily meeting',type:'normal'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'',text:'Preliminary estimate recorded',type:'highlight'},
+            {num:'',text:'Follow-up task created',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Sub Case 3B: Customer sold car before N-car delivery
+      {
+        id:'sl-3b', x:1250, y:4900, w:1100, h:380,
+        title:'Sub Case 3B Customer sold their car before confirmation of N-Car delivery date',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer sold car elsewhere',type:'warn'},
+          ]},
+          {role:'SO', steps:[
+            {num:'1',text:'SO learns customer sold car before N-Car delivery',type:'normal'},
+            {num:'2',text:'SO checks if customer still wants N-Car',type:'normal'},
+            {num:'3',text:'SO updates status in system',type:'normal'},
+          ]},
+          {role:'TL', steps:[
+            {num:'4',text:'TL reviews lost opportunity',type:'normal'},
+            {num:'5',text:'Notes reason and timing gap in review',type:'normal'},
+          ]},
+          {role:'PO', steps:[
+            {num:'',text:'Valuation opportunity lost',type:'warn'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'6',text:'SO updates with lost reason',type:'highlight'},
+            {num:'',text:'Data feeds into lost opportunity report',type:'normal'},
+          ]},
+        ]
+      },
+
+      // Case 4: Customer visits for N-Car and wants to exchange (from image 3)
+      {
+        id:'sl-4', x:60, y:5400, w:1500, h:520,
+        title:'Case 4 Customer visits N-Car showroom and wants to trade in (full procurement path)',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Customer visits showroom',type:'normal'},
+            {num:'',text:'Confirms exchange intent',type:'highlight'},
+            {num:'',text:'Brings vehicle for inspection',type:'normal'},
+            {num:'',text:'Agrees on price',type:'highlight'},
+          ]},
+          {role:'SO', steps:[
+            {num:'1',text:'Greets customer, collects info',type:'normal'},
+            {num:'2',text:'Checks CTDMS for customer history',type:'normal'},
+            {num:'3',text:'Introduces valuator (PO)',type:'normal'},
+            {num:'4',text:'Conducts NABing via Enquiry Card',type:'normal'},
+            {num:'5',text:'CTDMS entry before 1PM',type:'highlight'},
+          ]},
+          {role:'PO', steps:[
+            {num:'6',text:'Checks U-Trust website + CTDMS',type:'normal'},
+            {num:'7',text:'Explains valuation process',type:'normal'},
+            {num:'8',text:'Full inspection using checklist',type:'normal'},
+            {num:'9',text:'Enters sorting result (S1-S3)',type:'normal'},
+            {num:'10',text:'Generates price from grid',type:'highlight'},
+            {num:'11',text:'Negotiation with customer',type:'normal'},
+          ]},
+          {role:'TL / PTL', steps:[
+            {num:'12',text:'Morning CTDMS review',type:'normal'},
+            {num:'13',text:'Assigns unallocated enquiries',type:'normal'},
+            {num:'14',text:'Approves price grid',type:'normal'},
+          ]},
+          {role:'PI', steps:[
+            {num:'15',text:'Creates purchasing price grid',type:'normal'},
+            {num:'16',text:'Reviews margin targets',type:'normal'},
+          ]},
+          {role:'CTDMS', steps:[
+            {num:'',text:'Enquiry → Inspection → Sorting → Pricing → Negotiation → Purchase tracked end-to-end',type:'highlight'},
+          ]},
+        ]
+      },
+
+      // Case 5: Delivery and handover
+      {
+        id:'sl-5', x:60, y:6000, w:1200, h:400,
+        title:'Case 5 Delivery and document handover process',
+        lanes:[
+          {role:'Customer', steps:[
+            {num:'',text:'Confirms purchase agreement',type:'highlight'},
+            {num:'',text:'Provides original documents',type:'normal'},
+            {num:'',text:'Receives payment from U-Trust',type:'highlight'},
+          ]},
+          {role:'SO', steps:[
+            {num:'1',text:'Check loan / price',type:'normal'},
+            {num:'2',text:'Explain license terms',type:'normal'},
+            {num:'3',text:'Coordinate payment from U-Trust',type:'normal'},
+            {num:'4',text:'Car delivery: collect items + documents',type:'normal'},
+            {num:'5',text:'Follow-up after purchase (45 days)',type:'highlight'},
+          ]},
+          {role:'PO', steps:[
+            {num:'6',text:'Enter tender purchase detail in CTDMS',type:'normal'},
+            {num:'7',text:'Check payment & delivery checklist',type:'normal'},
+            {num:'8',text:'Forward acceptance to U-Car GM',type:'normal'},
+            {num:'9',text:'Check vehicle & original documents',type:'normal'},
+            {num:'10',text:'Coordinate with finance company',type:'normal'},
+          ]},
+          {role:'U-Car GM', steps:[
+            {num:'11',text:'Final acceptance approval',type:'highlight'},
+          ]},
+          {role:'Finance', steps:[
+            {num:'12',text:'Process payment',type:'normal'},
+            {num:'13',text:'NOC and title transfer',type:'normal'},
+          ]},
+        ]
+      },
+      
+      // Full Combined Workflow
+      {
+        id:'sl-procurement-combined', x:60, y:7300, w:1800, h:1200,
+        title:'Procurement Process - Full Combined Workflow',
+        lanes:[
+          {role:'Seller Customer', steps:[
+            {num:'',text:'Cost Confirmation',type:'normal'},
+            {num:'',text:'Registration on vehicle in the name of U-Car or Customer only / DO NOT receive blank delivery note.',type:'highlight'},
+            {num:'',text:'For early delivery, maintain delivery receipt to customer / new owner and take delivery with valid insurance policy (if any) or open delivery (depends on vehicle)',type:'highlight'},
+            {num:'',text:'Customer receives payment & Delivery receipt',type:'normal'},
+            {num:'',text:'Customer receives handedover documents & handover form',type:'normal'},
+          ]},
+          {role:'Office Receptionist', steps:[
+            {num:'',text:'Collect Keys, RC & original Docs from PO & update in register',type:'normal'},
+            {num:'',text:'Handover Keys/RC/Original docs to U-Car SO / New Car SO / Finance Team & update register',type:'normal'},
+          ]},
+          {role:'Procurement Officer (PO)', steps:[
+            {num:'',text:'Contact Customer & Collect the Payment terms: For Payment of N-Car / U-Car down payment, Advice expected date & time to fill up purchase delivery checklist, Ask U/C delivery (vehicle handover date)',type:'normal'},
+            {num:'',text:'Customer confirms the purchase agreement & really to get in agreement ?',type:'decision'},
+            {num:'',text:'Make residual car payment proposal and collect necessary original documents from customer, verify with EDP to create tentative purchase & vehicle delivery date / time',type:'normal'},
+            {num:'',text:'Residual Car payment timeline within 7 days of time. For Trade-In Case : within 3 days. Inform customer that Price is valid for 7 days. For Trade-In case adjust New car price amount vs Used car value and complete New car delivery & DO',type:'highlight'},
+            {num:'',text:'Start Payment Process 5 days before the agreed delivery date (in case of delay - Contact customer) & Collect required purchase documentation (from RTO / Official website)',type:'normal'},
+            {num:'',text:'Purchase on file & Hand over file completion within max of 7 days',type:'highlight'},
+            {num:'',text:'Confirm Exchange with New Car SO to understand expected delivery - Confirm Purchase & delivery plan - Update follow up tracking in CTDMS',type:'normal'},
+            {num:'',text:'Make / Receive Payment Proposal & Submit to PTL with Vehicle purchase delivery Checklist',type:'normal'},
+            {num:'',text:'Is Trade-In ?',type:'decision'},
+            {num:'',text:'For Trade-In case adjust the New Car price amount vs Old car value & initiate delivery date gets confirmed. - If required, Revise the Price Offer',type:'normal'},
+            {num:'',text:'Send Mail to customer / Call Customer, Inform Payment ready Details & fix appointment for Document collection - Update CTDMS (Must have place called Customer & Sales Executive for document signature)',type:'normal'},
+            {num:'',text:'All Payment approval must be in ERP and manual is not allowed.',type:'highlight'},
+            {num:'',text:'Check Vehicle & Original documents as per Purchase order',type:'normal'},
+            {num:'',text:'Collect keys as per agreed purchase delivery date & take sign on PO for vehicle receipt',type:'normal'},
+            {num:'',text:'Collect Original Document & take possession of vehicle',type:'normal'},
+            {num:'',text:'Deliver vehicle to U Car Yard / park yard. Submit 1 set of keys, Car SD & Original doc to U-Car TL for doc verification. Submit duplicate keys to security & application submit to EDP',type:'normal'},
+            {num:'',text:'Continuous follow up with customer for Pending keys / spare / Service Booklet & update CTDMS',type:'warn'},
+            {num:'',text:'Complete all purchase formalities as per Purchase Delivery Check list & update CTDMS',type:'normal'},
+            {num:'',text:'Send final documents, keys to Customer and update CTDMS',type:'normal'},
+            {num:'',text:'Call customer and take confirmation of payment / receipt of vehicle documents - Ask for referrals',type:'highlight'},
+          ]},
+          {role:'Procurement Team Leader (PTL)', steps:[
+            {num:'',text:'Provide Acceptance on Payment Proposal (Send to U-Car GM / Finance Authority)',type:'normal'},
+            {num:'',text:'Check Vehicle & Documents. If found any discrepancy cancel Purchase Order/take decision & action for discrepancy',type:'decision'},
+            {num:'',text:'Sign \\ Approve EDP for U-Car GRN / update CTDMS',type:'normal'},
+            {num:'',text:'Make U-Car stock as received in Purchase & Trade-In performance based on vehicle source',type:'normal'},
+            {num:'',text:'Check CTDMS for Purchase delivery checklist updation.',type:'normal'},
+            {num:'',text:'Initiate process for PO incentive based on source & Incentive for New Car SO',type:'highlight'},
+            {num:'',text:'If channel leads into new car SO & incentive is pending (Case : takes from customer that helps the PO payment). SO should update regarding the agreed delivery of both & balance collected from customer',type:'warn'},
+          ]},
+          {role:'Procurement Manager / UC Manager', steps:[
+            {num:'',text:'Based on approval, U-Car GM gives release',type:'normal'},
+            {num:'',text:'Approve commission / incentive details',type:'decision'},
+            {num:'',text:'Take decision on Purchase Cancellation, If require meet Customer. If cancelled inform EDP to cancel purchase in CTDMS',type:'warn'},
+            {num:'',text:'Meet customer and understand his reason of cancelling the U Car',type:'highlight'},
+          ]},
+          {role:'Dealer Finance Team', steps:[
+            {num:'',text:'Pay / Disburse Cash (via RTGS Payment)',type:'normal'},
+            {num:'',text:'Check whether Customer exist in Customer master. if not create new customer',type:'normal'},
+            {num:'',text:'For Trade-In : If New car enquiry is not closed (billing), update the new car emp details in U-Car screen / new car order / Invoice details in P-Car screen to complete the Trade In transaction. - Without this linking Purchase will not be counted as Trade-In.',type:'warn'},
+          ]},
+          {role:'EDP / Data Entry', steps:[
+            {num:'',text:'Check / Validate Purchase details sent by PO on the same day evening. - Update Purchase Checklist for the vehicle',type:'normal'},
+            {num:'',text:'For Trade-In case, Receive information from New Car SO / P-Car SO and update tentative purchase / delivery date',type:'normal'},
+            {num:'',text:'Receive payment application and vehicle details in CTDMS',type:'normal'},
+            {num:'',text:'Create Purchase Entry for the Vehicle on the Same day in system',type:'highlight'},
+            {num:'',text:'Cancel Purchase in CTDMS',type:'warn'},
+          ]},
+          {role:'New Car Sales Team', steps:[
+            {num:'',text:'For Trade-In case New Car SO to ensure PO is generated. - Used Car purchase office account will act as down payment for New Car by built-in case',type:'normal'},
+            {num:'',text:'Receive commission (Volume) & Incentive (internal)',type:'highlight'},
+          ]},
+          {role:'Enquiry Source for Procurement', steps:[
+            {num:'',text:'Customer Walk in (which leads out to any other)',type:'normal'},
+          ]},
+        ]
+      },
+    ]
+  };
+  return data;
+}
+
+function loadDefaultContent(){
+  const data = getDefaultData();
+  state.cards=data.cards;state.arrows=data.arrows;state.swimlanes=data.swimlanes;state.zoom=data.zoom;
+  state.panX=data.panX;state.panY=data.panY;state.nextId=data.nextId;
+  rebuildDOM();applyTransform();saveHistory();
+  buildWfNav();
+}
+
+// Load from injected HTML state if available, then localStorage, otherwise load defaults
+if(window.__SAVED_STATE__){
+  const d = window.__SAVED_STATE__;
+  state.cards=d.cards||[];state.arrows=d.arrows||[];state.swimlanes=d.swimlanes||[];
+  state.zoom=d.zoom||1;state.panX=d.panX||0;state.panY=d.panY||0;
+  state.nextId=d.nextId||1;state.selectedIds=[];state.history=[];state.histIdx=-1;
+  rebuildDOM();applyTransform();saveHistory();
+  buildWfNav();
+} else if(loadFromStorage()){
+  rebuildDOM();applyTransform();saveHistory();
+  buildWfNav();
+} else {
+  loadDefaultContent();
+}
+
+// Reset button: clear storage and reload defaults
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  if(confirm('Reset canvas to defaults? All your changes will be lost.')){
+    localStorage.removeItem(STORAGE_KEY);
+    state.history=[];state.histIdx=-1;
+    loadDefaultContent();
+  }
+});
+
+// Save on every pan/zoom stop
+wrap.addEventListener('mouseup',()=>persistToStorage());
+
+// Save before page unload so nothing is lost on reload
+window.addEventListener('beforeunload',()=>{
+  syncDOMToState();
+  try{
+    const data=JSON.stringify({
+      cards:state.cards,arrows:state.arrows,swimlanes:state.swimlanes,
+      zoom:state.zoom,panX:state.panX,panY:state.panY,nextId:state.nextId
+    });
+    localStorage.setItem(STORAGE_KEY,data);
+  }catch(e){}
+});
+
+// Also persist when user switches tabs or minimizes
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden') persistToStorage();
+});
+</script>
+</body>
+</html>
